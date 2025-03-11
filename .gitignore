@@ -1,0 +1,10 @@
+HMI.sln
+.idea/
+.svn/
+.vs/
+Binaries/
+Intermediate/
+Package/
+Platforms/
+Saved/
+ExternalFile/
