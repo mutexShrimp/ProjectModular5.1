@@ -23,10 +23,12 @@ class PROJECTMODULARPLUGIN_API IModuleSubsystemInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UFUNCTION(BlueprintNativeEvent, Category = "Function")
 	void BindModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
-
-	// UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
-	// void BindInvokeEvent(const TScriptInterface<IModuleClassInterface>& ModuleClass);
 	
+	UFUNCTION(BlueprintNativeEvent, Category = "Function")
+	void InvokeModuleByName(const FString& ModuleName, bool& isEmpty);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Function")
+	void InvokeModuleByClass(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
 };

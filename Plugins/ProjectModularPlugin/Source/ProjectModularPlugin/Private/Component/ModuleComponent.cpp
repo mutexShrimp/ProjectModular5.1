@@ -4,8 +4,8 @@
 #include "Component/ModuleComponent.h"
 #include "Class/ModuleClassInterface.h"
 #include "Component/ModuleComponentInterface.h"
-#include "Subsystem/Engine/ModuleSubsystem.h"
-#include "Subsystem/Engine/ModuleSubsystemInterface.h"
+#include "Subsystem/World/ModuleSubsystem.h"
+#include "Subsystem/World/ModuleSubsystemInterface.h"
 
 // Sets default values for this component's properties
 UModuleComponent::UModuleComponent()

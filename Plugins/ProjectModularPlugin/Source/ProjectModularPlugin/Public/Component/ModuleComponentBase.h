@@ -30,6 +30,9 @@ public:
 	void BindInvokeEvent(const TScriptInterface<IModuleClassInterface>& ModuleClass);
 	virtual void BindInvokeEvent_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);
 
+public:
+	TArray<TScriptInterface<IModuleClassInterface>> GetInvokeEventBinders();
+	
 protected:
 	TArray<TScriptInterface<IModuleClassInterface>> InvokeEventBinders;
 	

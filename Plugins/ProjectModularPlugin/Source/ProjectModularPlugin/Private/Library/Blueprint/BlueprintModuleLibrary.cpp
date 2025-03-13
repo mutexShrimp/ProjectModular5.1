@@ -3,6 +3,7 @@
 
 #include "Library/Blueprint/BlueprintModuleLibrary.h"
 #include "ProjectModularPlugin.h"
+#include "Subsystem/World/ModuleSubsystem.h"
 
 UBlueprintModuleLibrary::UBlueprintModuleLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -12,5 +13,9 @@ UBlueprintModuleLibrary::UBlueprintModuleLibrary(const FObjectInitializer& Objec
 
 float UBlueprintModuleLibrary::ProjectModularPluginSampleFunction(float Param)
 {
+	
+	
 	return -1;
 }
+
+

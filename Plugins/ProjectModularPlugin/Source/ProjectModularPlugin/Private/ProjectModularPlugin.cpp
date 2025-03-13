@@ -2,7 +2,7 @@
 
 #include "ProjectModularPlugin.h"
 
-#include "Subsystem/Engine/ModuleSubsystem.h"
+#include "Subsystem/World/ModuleSubsystem.h"
 
 #define LOCTEXT_NAMESPACE "FProjectModularPluginModule"
 

@@ -38,3 +38,8 @@ void UModuleComponentBase::BindInvokeEvent_Implementation(const TScriptInterface
 	UE_LOG(LogTemp, Warning, TEXT("Bind %s For Invoke Event"), *ModuleClass.GetObject()->GetName());
 	InvokeEventBinders.AddUnique(ModuleClass);
 }
+
+TArray<TScriptInterface<IModuleClassInterface>> UModuleComponentBase::GetInvokeEventBinders()
+{
+	return InvokeEventBinders;
+}

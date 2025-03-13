@@ -16,7 +16,6 @@ class PROJECTMODULARPLUGIN_API UBlueprintModuleLibrary : public UBlueprintFuncti
 	
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "ProjectModularPlugin sample test testing"), Category = "ProjectModularPluginTesting")
 	static float ProjectModularPluginSampleFunction(float Param);
-
 	
 };
 
