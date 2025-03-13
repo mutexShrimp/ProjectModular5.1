@@ -6,6 +6,25 @@
 #include "GameFramework/Actor.h"
 #include "RuleProcessingClassBase.generated.h"
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Pistol UMETA(DisplayName = "Pistol"),
+	Shotgun UMETA(DisplayName = "Shotgun"),
+	RocketLauncher UMETA(DisplayName = "Rocket Launcher")
+};
+
+USTRUCT(BlueprintType)
+struct FRule
+{
+	GENERATED_USTRUCT_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Size;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EWeaponType CullDistance;
+};
+
 UCLASS()
 class PROJECTMODULARPLUGIN_API ARuleProcessingClassBase : public AActor
 {
@@ -23,4 +42,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+private:
+	TArray<FRule> Rules;
+	
 };
