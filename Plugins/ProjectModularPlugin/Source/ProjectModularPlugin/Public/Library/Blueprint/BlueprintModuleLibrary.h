@@ -14,8 +14,8 @@ class PROJECTMODULARPLUGIN_API UBlueprintModuleLibrary : public UBlueprintFuncti
 {
 	GENERATED_UCLASS_BODY()
 	
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Execute Sample function", Keywords = "ProjectModularPlugin sample test testing"), Category = "ProjectModularPluginTesting")
-	static float ProjectModularPluginSampleFunction(float Param);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "IsBlueprintFunctionImplemented", Keywords = "Is Blueprint Function Implemented"), Category = "Function")
+	static bool IsBlueprintFunctionImplemented(UObject* Object, FName FunctionName);
 	
 };
 

@@ -3,15 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Component/ModuleComponent.h"
 #include "GameFramework/Actor.h"
 #include "RuleProcessingClassBase.generated.h"
 
+class UInvokeProcessingAbstractObject;
+
 UENUM(BlueprintType)
-enum class EWeaponType : uint8
+enum class ERuleTriggerType : uint8
 {
-	Pistol UMETA(DisplayName = "Pistol"),
-	Shotgun UMETA(DisplayName = "Shotgun"),
-	RocketLauncher UMETA(DisplayName = "Rocket Launcher")
+	Pre UMETA(DisplayName = "Pre"),
+	Post UMETA(DisplayName = "Post")
 };
 
 USTRUCT(BlueprintType)
@@ -19,10 +21,33 @@ struct FRule
 {
 	GENERATED_USTRUCT_BODY()
 	
+	FRule() = default;
+	
+	FRule(FString RuleName, FString TriggingDependencies = TEXT(""), UInvokeProcessingAbstractObject* InvokeProcessingObject = nullptr, ERuleTriggerType TriggerType = ERuleTriggerType::Post, int32 TriggerLevel = 0)
+	{
+		this->RuleName = RuleName;
+		this->TriggingDependencies = TriggingDependencies;
+		this->InvokeProcessingObject = InvokeProcessingObject;
+		this->TriggerType = TriggerType;
+		this->TriggerLevel = TriggerLevel;
+	}
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Size;
+	FString RuleName = TEXT("MyNewRule");
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EWeaponType CullDistance;
+	FString TriggingDependencies = TEXT("");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UInvokeProcessingAbstractObject* InvokeProcessingObject = nullptr;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ERuleTriggerType TriggerType = ERuleTriggerType::Post;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 TriggerLevel = 0;
+
+	
 };
 
 UCLASS()
@@ -42,7 +67,21 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void HandleInvocation(UModuleComponent* ModuleComponent);
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Init Rule Processer"))
+	TArray<FRule> InitializeRuleProcessor();
+	virtual TArray<FRule> InitializeRuleProcessor_Implementation();
+	
+	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Add Rule Processer"))
+	void AddRuleProcessor(TArray<FRule>& NewRules);
+	virtual void AddRuleProcessor_Implementation(TArray<FRule>& NewRules);
+	
 private:
 	TArray<FRule> Rules;
 	
 };
+
+
+

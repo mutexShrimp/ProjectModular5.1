@@ -35,10 +35,22 @@ void UModuleSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		TArray<UClass*> ClassArr;
 		Classes.GetKeys(ClassArr);
 		UE_LOG(LogTemp, Warning, TEXT("RuleProcessingClass Using %s"), *ClassArr[0]->GetName());
+		UObject** Object = Classes.Find(ClassArr[0]);
+		RuleProcessingClass = Cast<ARuleProcessingClassBase>(*Object);
 
+		//test
+		TArray<UClass*> aaa;
+		Classes.GetKeys(aaa);
+		for (UObject* FoundObject1 : FoundObjects) 
+		{
+			RuleProcessingClassArr.Add(Cast<ARuleProcessingClassBase>(FoundObject1));
+		}
+		
+		
+		
 		if (Classes.Num() > 1)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Too many RuleProcessingClasses (%d Classes) causing confusion"), Classes.Num());	
+			UE_LOG(LogTemp, Error, TEXT("Too many RuleProcessingClasses (%d Classes) causing confusion"), Classes.Num());
 		}
 	}
 }
@@ -81,17 +93,17 @@ void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface
 			TScriptInterface<IModuleClassInterface>* ModuleClass2 = Modules.Find(Key);
 			AActor* Actor = Cast<AActor>(ModuleClass2->GetObject());
 			UModuleComponent* Component = Actor->FindComponentByClass<UModuleComponent>();
-			if (Component)
+			if (Component && RuleProcessingClass)
 			{
-				for (TScriptInterface<IModuleClassInterface> ModuleClass3 : Component->GetInvokeEventBinders())
+				RuleProcessingClass->HandleInvocation(Component);
+
+				for (ARuleProcessingClassBase* ProcessingClassArr : RuleProcessingClassArr)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("%s Module Invoking"), *ModuleClass3.GetObject()->GetName());
+					ProcessingClassArr->HandleInvocation(Component);
 				}
-			}
-			
+			} 
 		}
 	}
-	
 }
 
 

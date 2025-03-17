@@ -7,6 +7,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "ModuleSubsystem.generated.h"
 
+class ARuleProcessingClassBase;
 /**
  * 
  */
@@ -38,5 +39,7 @@ private:
 	
 protected:
 	TMap<FString, TScriptInterface<IModuleClassInterface>> Modules;
-	
+
+	ARuleProcessingClassBase* RuleProcessingClass;
+	TArray<ARuleProcessingClassBase*> RuleProcessingClassArr;
 };

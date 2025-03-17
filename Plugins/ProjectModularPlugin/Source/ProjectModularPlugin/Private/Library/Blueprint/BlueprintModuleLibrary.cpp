@@ -11,11 +11,17 @@ UBlueprintModuleLibrary::UBlueprintModuleLibrary(const FObjectInitializer& Objec
 
 }
 
-float UBlueprintModuleLibrary::ProjectModularPluginSampleFunction(float Param)
+bool UBlueprintModuleLibrary::IsBlueprintFunctionImplemented(UObject* Object, FName FunctionName)
 {
-	
-	
-	return -1;
+	if (Object)
+	{
+		UClass* ObjectClass = Object->GetClass();
+		UFunction* Function = ObjectClass->FindFunctionByName(FunctionName);
+		if (Function && Function->HasAnyFunctionFlags(FUNC_Native))
+		{
+			return false; // 函数是原生的，未被蓝图覆盖
+		}
+		return true; // 函数被蓝图覆盖
+	}
+	return false; // 对象无效
 }
-
-
