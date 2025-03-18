@@ -3,6 +3,6 @@
 
 #include "Class/InvokeProcessingAbstractObject.h"
 
-void UInvokeProcessingAbstractObject::InvokeProcessing_Implementation()
+void UInvokeProcessingAbstractObject::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent)
 {
 }

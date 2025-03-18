@@ -14,9 +14,9 @@ class PROJECTMODULARPLUGIN_API UInvokeProcessingAbstractObject : public UObject
 {
 	GENERATED_BODY()
 
-protected:
+public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
-	void InvokeProcessing();
-	virtual void InvokeProcessing_Implementation();
+	void InvokeProcessing(UModuleComponent* ModuleComponent);
+	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent);
 	
 };

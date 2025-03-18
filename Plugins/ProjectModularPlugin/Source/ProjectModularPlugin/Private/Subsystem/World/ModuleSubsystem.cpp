@@ -5,7 +5,6 @@
 
 #include "Class/RuleProcessingClassBase.h"
 #include "Component/ModuleComponent.h"
-#include "Kismet/BlueprintMapLibrary.h"
 
 
 UModuleSubsystem::UModuleSubsystem()
@@ -17,36 +16,52 @@ void UModuleSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 {
 	Super::OnWorldBeginPlay(InWorld);
 
+	Reset();
+	
 	if (UWorld* World = GetWorld())
 	{
 		TArray<UObject*> FoundObjects;
 		GetObjectsOfClass(ARuleProcessingClassBase::StaticClass(), FoundObjects, true);
-		TMap<UClass*, UObject*> Classes;
+		TMap<UClass*, TArray<UObject*>> Classes;
+		
 		for (UObject* FoundObject : FoundObjects)
 		{
-			Classes.FindOrAdd(FoundObject->GetClass(), FoundObject);
+			if (FoundObject->GetWorld())
+			{
+				if (Classes.Contains(FoundObject->GetClass()))
+				{
+					Classes.Find(FoundObject->GetClass())->Add(FoundObject);
+				}
+				else
+				{
+					TArray<UObject*> Objs;
+					Objs.Add(FoundObject);
+					Classes.Add(FoundObject->GetClass(), Objs);
+				}
+			}
 		}
 		
 		if (Classes.IsEmpty())
 		{
 			ARuleProcessingClassBase* NewActor = World->SpawnActor<ARuleProcessingClassBase>(ARuleProcessingClassBase::StaticClass(), FVector::ZeroVector, FRotator::ZeroRotator);
-			Classes.Add(NewActor->GetClass(), NewActor);
+			TArray<UObject*> Objs;
+			Objs.Add(NewActor);
+			Classes.Add(NewActor->GetClass(), Objs);
 		}
-		TArray<UClass*> ClassArr;
-		Classes.GetKeys(ClassArr);
-		UE_LOG(LogTemp, Warning, TEXT("RuleProcessingClass Using %s"), *ClassArr[0]->GetName());
-		UObject** Object = Classes.Find(ClassArr[0]);
-		RuleProcessingClass = Cast<ARuleProcessingClassBase>(*Object);
 
-		//test
-		TArray<UClass*> aaa;
-		Classes.GetKeys(aaa);
-		for (UObject* FoundObject1 : FoundObjects) 
+		TArray<UClass*> FoundClasses;
+		Classes.GetKeys(FoundClasses);
+		UClass* FoundClass = FoundClasses[0];
+		UE_LOG(LogTemp, Warning, TEXT("RuleProcessingClass Using %s"), *FoundClass->GetName());
+		TArray<UObject*>* Objects = Classes.Find(FoundClass);
+		if (Objects)
 		{
-			RuleProcessingClassArr.Add(Cast<ARuleProcessingClassBase>(FoundObject1));
+			for (UObject* Obj : *Objects)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Found RuleProcessingClass Name : %s"), *Obj->GetName());
+				RuleProcessingClassArr.Add(Cast<ARuleProcessingClassBase>(Obj));
+			}
 		}
-		
-		
 		
 		if (Classes.Num() > 1)
 		{
@@ -93,17 +108,23 @@ void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface
 			TScriptInterface<IModuleClassInterface>* ModuleClass2 = Modules.Find(Key);
 			AActor* Actor = Cast<AActor>(ModuleClass2->GetObject());
 			UModuleComponent* Component = Actor->FindComponentByClass<UModuleComponent>();
-			if (Component && RuleProcessingClass)
+			if (Component && RuleProcessingClassArr.Num() > 0)
 			{
-				RuleProcessingClass->HandleInvocation(Component);
-
 				for (ARuleProcessingClassBase* ProcessingClassArr : RuleProcessingClassArr)
 				{
 					ProcessingClassArr->HandleInvocation(Component);
 				}
-			} 
+			}
 		}
 	}
+}
+
+void UModuleSubsystem::Reset()
+{
+	Modules.Empty();
+	
+	RuleProcessingClassArr.Empty();
+	
 }
 
 

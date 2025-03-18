@@ -34,12 +34,14 @@ public:
 	void InvokeModuleByClass(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
 	virtual void InvokeModuleByClass_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
 
+	
 private:
 	void InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
+
+	void Reset();
 	
 protected:
 	TMap<FString, TScriptInterface<IModuleClassInterface>> Modules;
-
-	ARuleProcessingClassBase* RuleProcessingClass;
+	
 	TArray<ARuleProcessingClassBase*> RuleProcessingClassArr;
 };

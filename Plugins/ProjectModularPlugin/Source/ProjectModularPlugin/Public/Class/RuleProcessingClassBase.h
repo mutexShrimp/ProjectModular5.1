@@ -23,11 +23,11 @@ struct FRule
 	
 	FRule() = default;
 	
-	FRule(FString RuleName, FString TriggingDependencies = TEXT(""), UInvokeProcessingAbstractObject* InvokeProcessingObject = nullptr, ERuleTriggerType TriggerType = ERuleTriggerType::Post, int32 TriggerLevel = 0)
+	FRule(FString RuleName, UInvokeProcessingAbstractObject* InvokeProcessingObject = nullptr, FString TriggingDependencies = TEXT(""), ERuleTriggerType TriggerType = ERuleTriggerType::Post, int32 TriggerLevel = 0)
 	{
 		this->RuleName = RuleName;
-		this->TriggingDependencies = TriggingDependencies;
 		this->InvokeProcessingObject = InvokeProcessingObject;
+		this->TriggingDependencies = TriggingDependencies;
 		this->TriggerType = TriggerType;
 		this->TriggerLevel = TriggerLevel;
 	}
@@ -70,13 +70,22 @@ public:
 	void HandleInvocation(UModuleComponent* ModuleComponent);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Init Rule Processer"))
-	TArray<FRule> InitializeRuleProcessor();
-	virtual TArray<FRule> InitializeRuleProcessor_Implementation();
+	TArray<FRule> InitializeRuleProcessor(UModuleComponent* ModuleComponent);
+	virtual TArray<FRule> InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent);
 	
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Add Rule Processer"))
-	void AddRuleProcessor(TArray<FRule>& NewRules);
-	virtual void AddRuleProcessor_Implementation(TArray<FRule>& NewRules);
+	TArray<FRule> AddRuleProcessor(UModuleComponent* ModuleComponent);
+	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent);
+
+protected:
+	TArray<FRule> SortBothRules(TArray<FRule> DefaultRules, TArray<FRule> NewRules);
+
+	TArray<FRule> SortRules(TArray<FRule> DefaultRules);
+
+	void PrintRules(TArray<FRule> DefaultRules);
+	
+	void PrintLinkedRules(TLinkedList<FRule>* LinkedList);
 	
 private:
 	TArray<FRule> Rules;

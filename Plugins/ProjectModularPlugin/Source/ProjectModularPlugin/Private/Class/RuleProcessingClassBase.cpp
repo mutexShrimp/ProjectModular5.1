@@ -4,6 +4,10 @@
 #include "Class/RuleProcessingClassBase.h"
 
 #include "Class/ModuleClassInterface.h"
+#include "Class/InvokeProcessing/InvokeProcessing_AllModule.h"
+#include "Class/InvokeProcessing/InvokeProcessing_AllModule_Once.h"
+#include "Class/InvokeProcessing/InvokeProcessing_CurModule.h"
+#include "Class/InvokeProcessing/InvokeProcessing_CurModule_Once.h"
 #include "Library/Blueprint/BlueprintModuleLibrary.h"
 
 // Sets default values
@@ -30,68 +34,112 @@ void ARuleProcessingClassBase::Tick(float DeltaTime)
 
 void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent)
 {
-	UFunction* Function = this->FindFunction(TEXT("MyBlueprintFunction"));
-	this->ProcessEvent(Function, nullptr);
-	
-	// TArray<FRule> DefaultRules;
-	// TArray<FRule> Rules1 = InitializeRuleProcessor();
-	// for (FRule Rule : Rules1)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Rule Processing Function Implemented %s"), *Rule.RuleName);
-	// }
+	// Sort
+	TArray<FRule> DefaultRules = InitializeRuleProcessor(ModuleComponent);
 
+	TArray<FRule> AddedRules = AddRuleProcessor(ModuleComponent);
 
+	SortBothRules(DefaultRules, AddedRules);
 	
-	// bool bIsBlueprintImplemented = UBlueprintModuleLibrary::IsBlueprintFunctionImplemented(this, TEXT("InitializeRuleProcessor"));
-	//
-	// if (bIsBlueprintImplemented)
-	// {
-	// 	UFunction* Function = this->FindFunction("InitializeRuleProcessor");
-	// 	if (Function)
-	// 	{
-	// 		// 分配内存用于存储参数和返回值
-	// 		uint8* Params = (uint8*)FMemory_Alloca(Function->ParmsSize);
-	// 		FMemory::Memzero(Params, Function->ParmsSize);
-	// 		// 调用函数
-	// 		this->ProcessEvent(Function, Params);
-	// 		// 获取返回值（假设返回值是int32类型）
-	// 		TArray<FRule>* ReturnValue = (TArray<FRule>*)(Params + Function->ReturnValueOffset);
-	// 	}
-	// }
-	// else
-	// {
-	// 	InitializeRuleProcessor_Implementation();
-	// }
-	//
-	// UE_LOG(LogTemp, Warning, TEXT("Rule Processing Function Implemented %d"), bIsBlueprintImplemented);
+	for (FRule Rule : DefaultRules)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Rule Processing Function Implemented %s"), *Rule.RuleName);
+	}
+	
+	// Invoke
+	for (FRule DefaultRule : DefaultRules)
+	{
+		DefaultRule.InvokeProcessingObject->InvokeProcessing(ModuleComponent);
+	}
 	
 }
 
-TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation()
+TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Default InitializeRuleProcessor_Implementation of MyFunction"));
+	UE_LOG(LogTemp, Warning, TEXT("InitializeRuleProcessor Function is Invoked"));
 
 	TArray<FRule> NewRules;
 	
-	NewRules.Add(FRule(TEXT("PreInitialEvent_CallAll")));
+	UInvokeProcessing_AllModule* InvokeProcessingObject_AllModule = NewObject<UInvokeProcessing_AllModule>(this);
+	
+	NewRules.Add(FRule(TEXT("ModuleInitializationBegins_InvokeAll"), InvokeProcessingObject_AllModule));
 
-	NewRules.Add(FRule(TEXT("PostInitialEvent_CallAll")));
+	NewRules.Add(FRule(TEXT("ModuleInitializationCompleted_InvokeAll"), InvokeProcessingObject_AllModule));
 
 	return NewRules;
 }
 
-// void ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(TArray<FRule>& NewRules)
-// {
-// 	UE_LOG(LogTemp, Warning, TEXT("Default InitializeRuleProcessor_Implementation of MyFunction"));
-// 	
-// 	NewRules.Add(FRule(TEXT("PreInitialEvent_CallAll")));
-//
-// 	NewRules.Add(FRule(TEXT("PostInitialEvent_CallAll")));
-// }
-
-void ARuleProcessingClassBase::AddRuleProcessor_Implementation(TArray<FRule>& NewRules)
+TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Default AddRuleProcessor_Implementation of MyFunction"));
+	UE_LOG(LogTemp, Warning, TEXT("AddRuleProcessor Function is Invoked"));
+
+	TArray<FRule> NewRules;
+
+	UInvokeProcessing_CurModule* InvokeProcessingObject_CurrentModule = NewObject<UInvokeProcessing_CurModule>(this);
+	UInvokeProcessing_CurModule_Once* InvokeProcessingObject_CurrentModule_DoOnce = NewObject<UInvokeProcessing_CurModule_Once>(this);
+	UInvokeProcessing_AllModule_Once* InvokeProcessingObject_AllModule_DoOnce = NewObject<UInvokeProcessing_AllModule_Once>(this);
+	
+	NewRules.Add(FRule(TEXT("InitModule"), InvokeProcessingObject_CurrentModule, TEXT("PreInitialEvent_InvokeAll"), ERuleTriggerType::Post, 10));
+
+	NewRules.Add(FRule(TEXT("DoOnce_PreInitModule_InvokeAll"), InvokeProcessingObject_AllModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Pre, 10));
+
+	NewRules.Add(FRule(TEXT("DoOnce_PreInitModule"), InvokeProcessingObject_CurrentModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Pre, 11));
+
+	NewRules.Add(FRule(TEXT("DoOnce_PostInitModule_InvokeAll"), InvokeProcessingObject_AllModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Post, 10));
+
+	NewRules.Add(FRule(TEXT("DoOnce_PostInitModule"), InvokeProcessingObject_CurrentModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Post, 11));
+	
+	return NewRules;
 }
 
+TArray<FRule> ARuleProcessingClassBase::SortBothRules(TArray<FRule> DefaultRules, TArray<FRule> NewRules)
+{
+	TArray<FRule> ReturnRules;
+
+	ReturnRules.Append(DefaultRules);
+	ReturnRules.Append(NewRules);
+	ReturnRules = SortRules(ReturnRules);
+	
+	return ReturnRules;
+}
+
+TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
+{
+	TArray<FRule> ReturnRules = DefaultRules;
+	TLinkedList<FRule>* LinkedList = nullptr;
+	
+	for (int32 RuleIndex = 0; RuleIndex < ReturnRules.Num(); RuleIndex++)
+	{
+		if (ReturnRules[RuleIndex].TriggingDependencies == TEXT(""))
+		{
+			TLinkedList<FRule>* NewLinkedList = new TLinkedList<FRule>(ReturnRules[RuleIndex]);
+			if (LinkedList == nullptr)
+			{
+				LinkedList = NewLinkedList;
+			}
+			else
+			{
+				LinkedList->LinkHead(NewLinkedList);	
+			}
+			
+		}
+	}
+	
+	PrintLinkedRules(LinkedList);
+	return ReturnRules;
+}
+
+void ARuleProcessingClassBase::PrintRules(TArray<FRule> DefaultRules)
+{
+	
+}
+
+void ARuleProcessingClassBase::PrintLinkedRules(TLinkedList<FRule>* LinkedList)
+{
+	for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
+	{
+		FRule Rule = *It;
+		UE_LOG(LogTemp, Warning, TEXT("LinkedRules : %s"), *Rule.RuleName);
+	}
+}
 
