@@ -16,6 +16,13 @@ enum class ERuleTriggerType : uint8
 	Post UMETA(DisplayName = "Post")
 };
 
+UENUM(BlueprintType)
+enum class ELinkedListToward : uint8
+{
+	Forward UMETA(DisplayName = "Forward"),
+	Backward UMETA(DisplayName = "Backward")
+};
+
 USTRUCT(BlueprintType)
 struct FRule
 {
@@ -85,10 +92,17 @@ protected:
 
 	void PrintRules(TArray<FRule> DefaultRules);
 	
-	void PrintLinkedRules(TLinkedList<FRule>* LinkedList);
+	void PrintLinkedRules(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList);
+
+	TLinkedList<FRule>* LinkedListToHead(ELinkedListToward LinkedListToward);
+
+	TLinkedList<FRule>* GetPrevLink(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList);
 	
 private:
 	TArray<FRule> Rules;
+
+	TLinkedList<FRule>* HeadLinkedList;
+	TLinkedList<FRule>* HeadLinkedList_Reverse;
 	
 };
 
