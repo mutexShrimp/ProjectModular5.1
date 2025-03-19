@@ -290,6 +290,20 @@ TLinkedList<FRule>* ARuleProcessingClassBase::GetPrevLink(ELinkedListToward Link
 {
 	switch (LinkedListToward) {
 	case ELinkedListToward::Forward:
+		{
+			TLinkedList<FRule>* __LinkedList = HeadLinkedList;
+			TLinkedList<FRule>* BackLinkedList = GetPrevLink(ELinkedListToward::Backward, LinkedList);
+			for (TLinkedList<FRule>::TIterator It(HeadLinkedList); It; It.Next())
+			{
+				FRule Rule = *It;
+				if ((*BackLinkedList)->RuleName == Rule.RuleName)
+				{
+					return __LinkedList;
+				}
+		
+				__LinkedList = __LinkedList->GetNextLink();
+			}
+		}
 		break;
 	case ELinkedListToward::Backward:
 		TLinkedList<FRule>* LinkedList_Reverse = HeadLinkedList_Reverse;
