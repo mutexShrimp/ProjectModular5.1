@@ -64,11 +64,14 @@ TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(U
 	TArray<FRule> NewRules;
 	
 	UInvokeProcessing_AllModule* InvokeProcessingObject_AllModule = NewObject<UInvokeProcessing_AllModule>(this);
+	UInvokeProcessing_CurModule* InvokeProcessingObject_CurrentModule = NewObject<UInvokeProcessing_CurModule>(this);
 	
 	NewRules.Add(FRule(TEXT("ModuleInitializationBegins_InvokeAll"), InvokeProcessingObject_AllModule));
 
 	NewRules.Add(FRule(TEXT("ModuleInitializationCompleted_InvokeAll"), InvokeProcessingObject_AllModule));
 
+	NewRules.Add(FRule(TEXT("InitModule"), InvokeProcessingObject_CurrentModule, TEXT("ModuleInitializationBegins_InvokeAll"), ERuleTriggerType::Post, 10));
+	
 	return NewRules;
 }
 
@@ -77,12 +80,9 @@ TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleC
 	UE_LOG(LogTemp, Warning, TEXT("AddRuleProcessor Function is Invoked"));
 
 	TArray<FRule> NewRules;
-
-	UInvokeProcessing_CurModule* InvokeProcessingObject_CurrentModule = NewObject<UInvokeProcessing_CurModule>(this);
+	
 	UInvokeProcessing_CurModule_Once* InvokeProcessingObject_CurrentModule_DoOnce = NewObject<UInvokeProcessing_CurModule_Once>(this);
 	UInvokeProcessing_AllModule_Once* InvokeProcessingObject_AllModule_DoOnce = NewObject<UInvokeProcessing_AllModule_Once>(this);
-	
-	NewRules.Add(FRule(TEXT("InitModule"), InvokeProcessingObject_CurrentModule, TEXT("ModuleInitializationBegins_InvokeAll"), ERuleTriggerType::Post, 10));
 
 	NewRules.Add(FRule(TEXT("DoOnce_PreInitModule_InvokeAll"), InvokeProcessingObject_AllModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Pre, 10));
 
@@ -111,7 +111,8 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 	TArray<FRule> ReturnRules = DefaultRules;
 	TLinkedList<FRule>* LinkedList = nullptr;
 	TLinkedList<FRule>* LinkedList_Reverse = nullptr;
-	
+
+	// 1 : 初始化无依赖结点
 	for (int32 RuleIndex = 0; RuleIndex < ReturnRules.Num(); RuleIndex++)
 	{
 		if (ReturnRules[RuleIndex].TriggingDependencies == TEXT(""))
@@ -124,10 +125,6 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 				HeadLinkedList = NewLinkedList;
 				LinkedList_Reverse = NewLinkedList_Reverse;
 				HeadLinkedList_Reverse = NewLinkedList_Reverse;
-				if (HeadLinkedList_Reverse)
-				{
-					
-				}
 			}
 			else
 			{
@@ -140,6 +137,7 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 		}
 	}
 
+	// 2 : 删除无依赖节点缓存
 	bool bRemoved = true;
 	while (bRemoved)
 	{
@@ -154,7 +152,8 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 			}
 		}
 	}
-	
+
+	// 3 : 粗略加入依赖节点到对应位置
 	for (int32 Index = 0; Index < ReturnRules.Num(); Index++)
 	{
 		LinkedList = LinkedListToHead(ELinkedListToward::Forward);
@@ -166,7 +165,7 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 			if (ReturnRules[Index].TriggingDependencies != TEXT("") && ReturnRules[Index].TriggingDependencies == Rule.RuleName)
 			{
 				TLinkedList<FRule>* NewLinkedList = new TLinkedList<FRule>(ReturnRules[Index]);
-				TLinkedList<FRule>* NewLinkedList_Reverse = new TLinkedList<FRule>(ReturnRules[Index]);
+				//TLinkedList<FRule>* NewLinkedList_Reverse = new TLinkedList<FRule>(ReturnRules[Index]);
 				switch (ReturnRules[Index].TriggerType)
 				{
 					case ERuleTriggerType::Pre:
@@ -174,35 +173,41 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 						// (*LinkedList->GetPrevLink())->GetNextLink()->LinkHead(LinkedList);
 					
 						//LinkedList->LinkBefore(NewLinkedList);
-						if (GetPrevLink(ELinkedListToward::Forward, LinkedList) != LinkedList)
 						{
 							TLinkedList<FRule>* PrevLink = GetPrevLink(ELinkedListToward::Forward, LinkedList);
-							NewLinkedList->LinkHead(LinkedList);
-							PrevLink->LinkHead(NewLinkedList);
-							HeadLinkedList = PrevLink;
-							// TLinkedList<FRule>* PrevLink = *LinkedList->GetPrevLink();
-							// PrevLink->LinkHead(NewLinkedList);
-							// PrevLink->GetNextLink()->LinkHead(LinkedList);
+							if (PrevLink != LinkedList && PrevLink != nullptr)
+							{
+								NewLinkedList->LinkHead(LinkedList);
+								PrevLink->LinkHead(NewLinkedList);
+							
+								//HeadLinkedList = PrevLink;
+							
+								// TLinkedList<FRule>* PrevLink = *LinkedList->GetPrevLink();
+								// PrevLink->LinkHead(NewLinkedList);
+								// PrevLink->GetNextLink()->LinkHead(LinkedList);
 
-							//AddReverseLink
-							TLinkedList<FRule>* Link = GetPrevLink(ELinkedListToward::Backward, LinkedList_Reverse)->GetNextLink();
-							TLinkedList<FRule>* NextLink = Link->GetNextLink();
-							Link->LinkHead(NewLinkedList_Reverse);
-							Link->GetNextLink()->LinkHead(NextLink);
+								//AddReverseLink*
+								// TLinkedList<FRule>* Link = GetPrevLink(ELinkedListToward::Backward, LinkedList_Reverse)->GetNextLink();
+								// TLinkedList<FRule>* NextLink = Link->GetNextLink();
+								// Link->LinkHead(NewLinkedList_Reverse);
+								// Link->GetNextLink()->LinkHead(NextLink);
 							
-						}
-						else
-						{
-							NewLinkedList->LinkHead(LinkedList);
-							HeadLinkedList = NewLinkedList;
+							}
+							else
+							{
+								NewLinkedList->LinkHead(LinkedList);
+								HeadLinkedList = NewLinkedList;
+								//LinkedList = HeadLinkedList;
 							
-							//AddReverseLink
-							TLinkedList<FRule>* Link = GetPrevLink(ELinkedListToward::Backward, NewLinkedList)->GetNextLink();
-							Link->LinkHead(NewLinkedList_Reverse);
+							
+								//AddReverseLink*
+								// TLinkedList<FRule>* Link = GetPrevLink(ELinkedListToward::Backward, NewLinkedList)->GetNextLink();
+								// Link->LinkHead(NewLinkedList_Reverse);
+							}
+							//(*LinkedList->GetPrevLink())->LinkHead(NewLinkedList);
+							// *(*LinkedList->GetPrevLink())->GetNextLink() = *NewLinkedList;
+							// *LinkedList->GetPrevLink() = NewLinkedList;
 						}
-						//(*LinkedList->GetPrevLink())->LinkHead(NewLinkedList);
-						// *(*LinkedList->GetPrevLink())->GetNextLink() = *NewLinkedList;
-						// *LinkedList->GetPrevLink() = NewLinkedList;
 						break;
 					case ERuleTriggerType::Post:
 						// *(LinkedList->GetNextLink())->GetPrevLink() = NewLinkedList;;
@@ -215,21 +220,21 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 							LinkedList->LinkHead(NewLinkedList);
 							LinkedList->GetNextLink()->LinkHead(NextLink);
 
-							//AddReverseLink
-							TLinkedList<FRule>* NextRules = LinkedList_Reverse->GetNextLink();
-							LinkedList_Reverse->LinkHead(NewLinkedList_Reverse);
-							LinkedList_Reverse->GetNextLink()->LinkHead(NextRules);
-							HeadLinkedList_Reverse = NewLinkedList_Reverse;
+							//AddReverseLink*
+							// TLinkedList<FRule>* NextRules = LinkedList_Reverse->GetNextLink();
+							// LinkedList_Reverse->LinkHead(NewLinkedList_Reverse);
+							// LinkedList_Reverse->GetNextLink()->LinkHead(NextRules);
+							// HeadLinkedList_Reverse = NewLinkedList_Reverse;
 							
 						}
 						else
 						{
 							LinkedList->LinkHead(NewLinkedList);
 
-							//AddReverseLink
-							NewLinkedList_Reverse->LinkHead(LinkedList_Reverse);
-							LinkedList_Reverse = NewLinkedList_Reverse;
-							HeadLinkedList_Reverse = NewLinkedList_Reverse;
+							//AddReverseLink*
+							// NewLinkedList_Reverse->LinkHead(LinkedList_Reverse);
+							// LinkedList_Reverse = NewLinkedList_Reverse;
+							// HeadLinkedList_Reverse = NewLinkedList_Reverse;
 						}
 						
 						
@@ -238,15 +243,116 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 						break;
 				}
 			}
-			if (LinkedList->GetNextLink())
+			if (LinkedList->GetNextLink() != nullptr)
 			{
 				LinkedList = LinkedList->GetNextLink();
 			}
+			else
+			{
+				break;
+			}
+		}
+		//PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
+	}
+	
+	PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
+
+	// 4 : 根据等级精细排序
+	LinkedList = LinkedListToHead(ELinkedListToward::Forward);
+	TLinkedList<FRule>* L_HeadLinkedList = LinkedListToHead(ELinkedListToward::Forward);
+
+	// 加入数组
+	TArray<TArray<FRule>> RuleArray;
+	for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
+	{
+		FRule Rule = *It;
+
+		if (L_HeadLinkedList->GetNextLink() != nullptr)
+		{
+			if ((*L_HeadLinkedList)->TriggingDependencies == (*L_HeadLinkedList->GetNextLink())->TriggingDependencies)
+			{
+				FRule Rule(
+				(*L_HeadLinkedList)->RuleName,
+				(*L_HeadLinkedList)->InvokeProcessingObject,
+				(*L_HeadLinkedList)->TriggingDependencies,
+				(*L_HeadLinkedList)->TriggerType,
+				(*L_HeadLinkedList)->TriggerLevel);
+
+				FRule NextRule(
+				(*L_HeadLinkedList->GetNextLink())->RuleName,
+				(*L_HeadLinkedList->GetNextLink())->InvokeProcessingObject,
+				(*L_HeadLinkedList->GetNextLink())->TriggingDependencies,
+				(*L_HeadLinkedList->GetNextLink())->TriggerType,
+				(*L_HeadLinkedList->GetNextLink())->TriggerLevel);
+
+				if (RuleArray.Num() == 0)
+				{
+					TArray<FRule> NewRuleArray;
+					NewRuleArray.Add(Rule);
+					NewRuleArray.Add(NextRule);
+					RuleArray.Add(NewRuleArray);
+				}
+				else
+				{
+					RuleArray[RuleArray.Num() - 1].Add(Rule);
+					RuleArray[RuleArray.Num() - 1].Add(NextRule);
+				}
+
+				L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+			}
+			else
+			{
+				if (RuleArray.Num() > 0)
+				{
+					TArray<FRule> NewRuleArray;
+					RuleArray.Add(NewRuleArray);
+				}
+				L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+			}
+		}
+		
+	}
+
+	// 数组排序
+
+
+	// 链表链接
+	LinkedList = LinkedListToHead(ELinkedListToward::Forward);
+	L_HeadLinkedList = LinkedListToHead(ELinkedListToward::Forward);
+	if (RuleArray.Num() > 0)
+	{
+		for (int32 i = 0; i < RuleArray.Num(); i++)
+		{
+			for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
+			{
+				FRule Rule = *It;
+
+				if (RuleArray[i].Num() > 0)
+				{
+					if (Rule.TriggingDependencies == RuleArray[i][0].TriggingDependencies)
+					{
+						TLinkedList<FRule>* L_HeadLinkedList2 = L_HeadLinkedList;
+
+						while ((*L_HeadLinkedList2->GetNextLink())->TriggingDependencies == Rule.TriggingDependencies)
+						{
+							L_HeadLinkedList2 = L_HeadLinkedList2->GetNextLink();
+						}
+						TLinkedList<FRule>* NextLink = L_HeadLinkedList2->GetNextLink();
+						
+						for (int32 j = 0; j < RuleArray[i].Num(); j++)
+						{
+							
+						}
+					}	
+				}
+
+				L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+			}
 		}
 	}
-	//LinkedList = HeadLinkedList;
+	
+	
 	PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
-	PrintLinkedRules(ELinkedListToward::Backward, LinkedList_Reverse);
 	
 	return ReturnRules;
 }
@@ -265,6 +371,7 @@ void ARuleProcessingClassBase::PrintLinkedRules(ELinkedListToward LinkedListTowa
 		FRule Rule = *It;
 		UE_LOG(LogTemp, Warning, TEXT("Toward %s, LinkedRules : %s"), LinkedListToward == ELinkedListToward::Forward ? TEXT("Forward") : TEXT("Backward"), *Rule.RuleName);
 	}
+	UE_LOG(LogTemp, Display, TEXT("----------\n"));
 }
 
 TLinkedList<FRule>* ARuleProcessingClassBase::LinkedListToHead(ELinkedListToward LinkedListToward)
@@ -292,16 +399,25 @@ TLinkedList<FRule>* ARuleProcessingClassBase::GetPrevLink(ELinkedListToward Link
 	case ELinkedListToward::Forward:
 		{
 			TLinkedList<FRule>* __LinkedList = HeadLinkedList;
-			TLinkedList<FRule>* BackLinkedList = GetPrevLink(ELinkedListToward::Backward, LinkedList);
+			//TLinkedList<FRule>* BackLinkedList = GetPrevLink(ELinkedListToward::Backward, LinkedList);
+			
 			for (TLinkedList<FRule>::TIterator It(HeadLinkedList); It; It.Next())
 			{
 				FRule Rule = *It;
-				if ((*BackLinkedList)->RuleName == Rule.RuleName)
+
+				if (__LinkedList->GetNextLink() != nullptr)
 				{
-					return __LinkedList;
+					if ((*__LinkedList->GetNextLink())->RuleName == (*LinkedList)->RuleName)
+					{
+						return __LinkedList;
+					}
+					
+					__LinkedList = __LinkedList->GetNextLink();	
 				}
-		
-				__LinkedList = __LinkedList->GetNextLink();
+				else
+				{
+					return nullptr;
+				}
 			}
 		}
 		break;
@@ -310,9 +426,9 @@ TLinkedList<FRule>* ARuleProcessingClassBase::GetPrevLink(ELinkedListToward Link
 		for (TLinkedList<FRule>::TIterator It(HeadLinkedList_Reverse); It; It.Next())
 		{
 			FRule Rule = *It;
-			if ((*LinkedList)->RuleName == Rule.RuleName)
+			if ((*LinkedList->GetNextLink())->RuleName == Rule.RuleName)
 			{
-				return LinkedList_Reverse->GetNextLink();
+				return LinkedList_Reverse;
 			}
 		
 			LinkedList_Reverse = LinkedList_Reverse->GetNextLink();
