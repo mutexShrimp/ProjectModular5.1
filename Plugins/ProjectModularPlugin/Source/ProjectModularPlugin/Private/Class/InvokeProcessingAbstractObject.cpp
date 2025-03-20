@@ -3,6 +3,8 @@
 
 #include "Class/InvokeProcessingAbstractObject.h"
 
-void UInvokeProcessingAbstractObject::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent)
+#include "Class/RuleProcessingClassBase.h"
+
+void UInvokeProcessingAbstractObject::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, FRule Rule)
 {
 }

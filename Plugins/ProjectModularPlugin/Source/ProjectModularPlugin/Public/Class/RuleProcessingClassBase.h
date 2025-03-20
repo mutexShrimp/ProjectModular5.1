@@ -109,6 +109,8 @@ private:
 	TLinkedList<FRule>* CacheLinkList;
 
 	TArray<TArray<FRule>> FinalRules;
+	TArray<FRule> FinalRuleArr;
+	
 };
 
 

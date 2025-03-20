@@ -41,18 +41,18 @@ void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponen
 
 	if (!DefaultRules.IsEmpty() || !AddedRules.IsEmpty())
 	{
-		SortBothRules(DefaultRules, AddedRules);
+		TArray<FRule> RullRules = SortBothRules(DefaultRules, AddedRules);
 	
-		for (FRule Rule : DefaultRules)
+		for (FRule Rule : RullRules)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Rule Processing Function Implemented %s"), *Rule.RuleName);
 		}
-	
+		
 		// Invoke
-		// for (FRule DefaultRule : DefaultRules)
-		// {
-		// 	DefaultRule.InvokeProcessingObject->InvokeProcessing(ModuleComponent);
-		// }	
+		for (FRule DefaultRule : RullRules)
+		{
+			DefaultRule.InvokeProcessingObject->InvokeProcessing(ModuleComponent, DefaultRule);
+		}	
 	}
 	
 }
@@ -255,7 +255,7 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 		//PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
 	}
 	
-	PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
+	//PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
 
 	// 4 : 根据等级精细排序
 	LinkedList = LinkedListToHead(ELinkedListToward::Forward);
@@ -306,15 +306,14 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 	//PrintArrayRules(FinalRules);
 
 	// 降维存储
-	TArray<FRule> Return;
-	for (const TArray<FRule>& FinalRuleArr : FinalRules)
+	for (const TArray<FRule>& L_FinalRuleArr : FinalRules)
 	{
-		for (FRule FinalRule : FinalRuleArr)
+		for (FRule FinalRule : L_FinalRuleArr)
 		{
-			Return.Add(FinalRule);
+			FinalRuleArr.Add(FinalRule);
 		}
 	}
-	PrintRules(Return);
+	//PrintRules(FinalRuleArr);
 
 
 	
@@ -456,7 +455,7 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 	
 	//PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
 	
-	return Return;
+	return FinalRuleArr;
 }
 
 void ARuleProcessingClassBase::PrintArrayRules(TArray<TArray<FRule>> DefaultArrayRules)

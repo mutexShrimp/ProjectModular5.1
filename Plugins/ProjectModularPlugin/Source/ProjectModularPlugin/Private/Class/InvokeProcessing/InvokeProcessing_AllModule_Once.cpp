@@ -3,7 +3,10 @@
 
 #include "Class/InvokeProcessing/InvokeProcessing_AllModule_Once.h"
 
-void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent)
+#include "Class/RuleProcessingClassBase.h"
+
+
+void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, FRule Rule)
 {
-	Super::InvokeProcessing_Implementation(ModuleComponent);
+	Super::InvokeProcessing_Implementation(ModuleComponent, Rule);
 }

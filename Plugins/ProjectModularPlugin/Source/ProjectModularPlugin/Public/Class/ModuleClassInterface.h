@@ -26,5 +26,7 @@ public:
 	FString GetModuleName();
 	virtual FString GetModuleName_Implementation();
 	
-	
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ModuleEvent(const FString& EventName);
+	virtual void ModuleEvent_Implementation(const FString& EventName);
 };
