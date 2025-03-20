@@ -259,107 +259,220 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 
 	// 4 : 根据等级精细排序
 	LinkedList = LinkedListToHead(ELinkedListToward::Forward);
-	TLinkedList<FRule>* L_HeadLinkedList = LinkedListToHead(ELinkedListToward::Forward);
 
-	// 加入数组
-	TArray<TArray<FRule>> RuleArray;
+	// 转化为数组
 	for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
 	{
 		FRule Rule = *It;
+		bool bHasTrigger = false;
 
-		if (L_HeadLinkedList->GetNextLink() != nullptr)
+		if (Rule.TriggingDependencies == TEXT(""))
 		{
-			if ((*L_HeadLinkedList)->TriggingDependencies == (*L_HeadLinkedList->GetNextLink())->TriggingDependencies)
-			{
-				FRule Rule(
-				(*L_HeadLinkedList)->RuleName,
-				(*L_HeadLinkedList)->InvokeProcessingObject,
-				(*L_HeadLinkedList)->TriggingDependencies,
-				(*L_HeadLinkedList)->TriggerType,
-				(*L_HeadLinkedList)->TriggerLevel);
-
-				FRule NextRule(
-				(*L_HeadLinkedList->GetNextLink())->RuleName,
-				(*L_HeadLinkedList->GetNextLink())->InvokeProcessingObject,
-				(*L_HeadLinkedList->GetNextLink())->TriggingDependencies,
-				(*L_HeadLinkedList->GetNextLink())->TriggerType,
-				(*L_HeadLinkedList->GetNextLink())->TriggerLevel);
-
-				if (RuleArray.Num() == 0)
-				{
-					TArray<FRule> NewRuleArray;
-					NewRuleArray.Add(Rule);
-					NewRuleArray.Add(NextRule);
-					RuleArray.Add(NewRuleArray);
-				}
-				else
-				{
-					RuleArray[RuleArray.Num() - 1].Add(Rule);
-					RuleArray[RuleArray.Num() - 1].Add(NextRule);
-				}
-
-				L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
-			}
-			else
-			{
-				if (RuleArray.Num() > 0)
-				{
-					TArray<FRule> NewRuleArray;
-					RuleArray.Add(NewRuleArray);
-				}
-				L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
-			}
+			TArray<FRule> NewRules;
+			NewRules.Add(Rule);
+			FinalRules.Add(NewRules);
 		}
-		
-	}
-
-	// 数组排序
-
-
-	// 链表链接
-	LinkedList = LinkedListToHead(ELinkedListToward::Forward);
-	L_HeadLinkedList = LinkedListToHead(ELinkedListToward::Forward);
-	if (RuleArray.Num() > 0)
-	{
-		for (int32 i = 0; i < RuleArray.Num(); i++)
+		else
 		{
-			for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
+			for (int32 Index = 0; Index < FinalRules.Num(); Index++)
 			{
-				FRule Rule = *It;
-
-				if (RuleArray[i].Num() > 0)
+				if (FinalRules[Index].Num() > 0)
 				{
-					if (Rule.TriggingDependencies == RuleArray[i][0].TriggingDependencies)
+					if (FinalRules[Index][0].TriggingDependencies == Rule.TriggingDependencies && FinalRules[Index][0].TriggerType == Rule.TriggerType)
 					{
-						TLinkedList<FRule>* L_HeadLinkedList2 = L_HeadLinkedList;
-
-						while ((*L_HeadLinkedList2->GetNextLink())->TriggingDependencies == Rule.TriggingDependencies)
-						{
-							L_HeadLinkedList2 = L_HeadLinkedList2->GetNextLink();
-						}
-						TLinkedList<FRule>* NextLink = L_HeadLinkedList2->GetNextLink();
-						
-						for (int32 j = 0; j < RuleArray[i].Num(); j++)
-						{
-							
-						}
-					}	
+						FinalRules[Index].Add(Rule);
+						bHasTrigger = true;
+					}
 				}
-
-				L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+			}
+			if (!bHasTrigger)
+			{
+				TArray<FRule> NewRules;
+				NewRules.Add(Rule);
+				FinalRules.Add(NewRules);
 			}
 		}
 	}
+
+	// 对数组排序
+	for (TArray<FRule>& MyRuleArr : FinalRules)
+	{
+		MyRuleArr.Sort([](const FRule& A, const FRule& B)
+		{
+			return A.TriggerLevel < B.TriggerLevel;
+		});
+	}
+
+	//PrintArrayRules(FinalRules);
+
+	// 降维存储
+	TArray<FRule> Return;
+	for (const TArray<FRule>& FinalRuleArr : FinalRules)
+	{
+		for (FRule FinalRule : FinalRuleArr)
+		{
+			Return.Add(FinalRule);
+		}
+	}
+	PrintRules(Return);
+
+
 	
 	
-	PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
+	// LinkedList = LinkedListToHead(ELinkedListToward::Forward);
+	// TLinkedList<FRule>* L_HeadLinkedList = LinkedListToHead(ELinkedListToward::Forward);
+	//
+	// // 加入数组
+	// TArray<TArray<FRule>> RuleArray;
+	// for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
+	// {
+	// 	//FRule Rule = *It;
+	//
+	// 	if (L_HeadLinkedList->GetNextLink() != nullptr)
+	// 	{
+	// 		if ((*L_HeadLinkedList)->TriggingDependencies == (*L_HeadLinkedList->GetNextLink())->TriggingDependencies)
+	// 		{
+	// 			FRule Rule(
+	// 			(*L_HeadLinkedList)->RuleName,
+	// 			(*L_HeadLinkedList)->InvokeProcessingObject,
+	// 			(*L_HeadLinkedList)->TriggingDependencies,
+	// 			(*L_HeadLinkedList)->TriggerType,
+	// 			(*L_HeadLinkedList)->TriggerLevel);
+	//
+	// 			FRule NextRule(
+	// 			(*L_HeadLinkedList->GetNextLink())->RuleName,
+	// 			(*L_HeadLinkedList->GetNextLink())->InvokeProcessingObject,
+	// 			(*L_HeadLinkedList->GetNextLink())->TriggingDependencies,
+	// 			(*L_HeadLinkedList->GetNextLink())->TriggerType,
+	// 			(*L_HeadLinkedList->GetNextLink())->TriggerLevel);
+	//
+	// 			if (RuleArray.Num() == 0)
+	// 			{
+	// 				TArray<FRule> NewRuleArray;
+	// 				NewRuleArray.Add(Rule);
+	// 				NewRuleArray.Add(NextRule);
+	// 				RuleArray.Add(NewRuleArray);
+	// 				
+	// 			}
+	// 			else
+	// 			{
+	// 				RuleArray[RuleArray.Num() - 1].Add(Rule);
+	// 				RuleArray[RuleArray.Num() - 1].Add(NextRule);
+	// 			}
+	//
+	// 			L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+	// 		}
+	// 		else
+	// 		{
+	// 			if (RuleArray.Num() > 0)
+	// 			{
+	// 				TArray<FRule> NewRuleArray;
+	// 				RuleArray.Add(NewRuleArray);
+	// 			}
+	// 			L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+	// 		}
+	// 	}
+	// 	
+	// }
+	//
+	// PrintArrayRules(RuleArray);
+	//
+	// // 数组排序
+	//
+	//
+	// // 链表链接
+	// LinkedList = LinkedListToHead(ELinkedListToward::Forward);
+	// TLinkedList<FRule>* NewLinkedList2;
+	//
+	// {
+	// 	FRule Rule(
+	// 		(*LinkedList)->RuleName,
+	// 		(*LinkedList)->InvokeProcessingObject,
+	// 		(*LinkedList)->TriggingDependencies,
+	// 		(*LinkedList)->TriggerType,
+	// 		(*LinkedList)->TriggerLevel);
+	//
+	// 	CacheLinkList = new TLinkedList<FRule>(Rule);
+	// 	NewLinkedList2 = CacheLinkList;
+	// }
+	//
+	// // 初始移动
+	// while (LinkedList->GetNextLink() != nullptr && (*LinkedList->GetNextLink())->TriggingDependencies != (*LinkedList)->TriggingDependencies)
+	// {
+	// 	LinkedList = LinkedList->GetNextLink();
+	//
+	// 	
+	// 	FRule Rule(
+	// 	(*LinkedList)->RuleName,
+	// 	(*LinkedList)->InvokeProcessingObject,
+	// 	(*LinkedList)->TriggingDependencies,
+	// 	(*LinkedList)->TriggerType,
+	// 	(*LinkedList)->TriggerLevel);
+	// 	
+	// 	TLinkedList<FRule>* L_NewLinkedList = new TLinkedList<FRule>(Rule);
+	// 	NewLinkedList2->LinkHead(L_NewLinkedList);
+	// 	
+	// }
+	// LinkedList = GetPrevLink(ELinkedListToward::Forward, LinkedList);
+	// NewLinkedList2 = GetNewPrevLink(NewLinkedList2, CacheLinkList);
+	//
+	// L_HeadLinkedList = LinkedList;
+	//
+	// if (RuleArray.Num() > 0)
+	// {
+	// 	for (int32 i = 0; i < RuleArray.Num(); i++)
+	// 	{
+	// 		for (int32 j = 0; j < RuleArray[i].Num(); j++)
+	// 		{
+	// 			if ((*L_HeadLinkedList->GetNextLink())->TriggingDependencies == RuleArray[i][j].TriggingDependencies)
+	// 			{
+	// 				FRule Rule(
+	// 					RuleArray[i][j].RuleName,
+	// 					RuleArray[i][j].InvokeProcessingObject,
+	// 					RuleArray[i][j].TriggingDependencies,
+	// 					RuleArray[i][j].TriggerType,
+	// 					RuleArray[i][j].TriggerLevel
+	// 					);
+	// 				TLinkedList<FRule>* L_NewLinkedList2 = new TLinkedList<FRule>(Rule);
+	// 				NewLinkedList2->LinkHead(L_NewLinkedList2);
+	// 				
+	// 				L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+	// 			}
+	// 		}
+	//
+	// 		if (L_HeadLinkedList->GetNextLink() != nullptr)
+	// 		{
+	// 			//L_HeadLinkedList = L_HeadLinkedList->GetNextLink();
+	//
+	// 			
+	// 		}
+	// 		
+	// 	}
+	// }
+	// LinkedList = L_HeadLinkedList;
+
+
+
 	
-	return ReturnRules;
+	//PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
+	
+	return Return;
+}
+
+void ARuleProcessingClassBase::PrintArrayRules(TArray<TArray<FRule>> DefaultArrayRules)
+{
+	for (TArray<FRule> RuleArray : DefaultArrayRules)
+	{
+		PrintRules(RuleArray);
+	}
 }
 
 void ARuleProcessingClassBase::PrintRules(TArray<FRule> DefaultRules)
 {
-	
+	for ( FRule Rule : DefaultRules)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Rules : %s"), *Rule.RuleName);
+	}
 }
 
 void ARuleProcessingClassBase::PrintLinkedRules(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList)
@@ -436,4 +549,30 @@ TLinkedList<FRule>* ARuleProcessingClassBase::GetPrevLink(ELinkedListToward Link
 		break;
 	}
 	return NULL;
+}
+
+TLinkedList<FRule>* ARuleProcessingClassBase::GetNewPrevLink(TLinkedList<FRule>* LinkedList,
+	TLinkedList<FRule>* __HeadLinkedList)
+{
+	TLinkedList<FRule>* __LinkedList = __HeadLinkedList;
+			
+	for (TLinkedList<FRule>::TIterator It(__HeadLinkedList); It; It.Next())
+	{
+		FRule Rule = *It;
+
+		if (__LinkedList->GetNextLink() != nullptr)
+		{
+			if ((*__LinkedList->GetNextLink())->RuleName == (*LinkedList)->RuleName)
+			{
+				return __LinkedList;
+			}
+					
+			__LinkedList = __LinkedList->GetNextLink();	
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	return nullptr;
 }

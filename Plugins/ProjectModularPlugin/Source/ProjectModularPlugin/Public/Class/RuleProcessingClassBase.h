@@ -90,6 +90,8 @@ protected:
 
 	TArray<FRule> SortRules(TArray<FRule> DefaultRules);
 
+	void PrintArrayRules(TArray<TArray<FRule>> DefaultArrayRules);
+	
 	void PrintRules(TArray<FRule> DefaultRules);
 	
 	void PrintLinkedRules(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList);
@@ -97,13 +99,16 @@ protected:
 	TLinkedList<FRule>* LinkedListToHead(ELinkedListToward LinkedListToward);
 
 	TLinkedList<FRule>* GetPrevLink(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList);
+	TLinkedList<FRule>* GetNewPrevLink(TLinkedList<FRule>* LinkedList, TLinkedList<FRule>* __HeadLinkedList);
 	
 private:
 	TArray<FRule> Rules;
 
 	TLinkedList<FRule>* HeadLinkedList;
 	TLinkedList<FRule>* HeadLinkedList_Reverse;
-	
+	TLinkedList<FRule>* CacheLinkList;
+
+	TArray<TArray<FRule>> FinalRules;
 };
 
 
