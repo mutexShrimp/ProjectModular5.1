@@ -5,6 +5,7 @@
 
 #include "Class/RuleProcessingClassBase.h"
 #include "Component/ModuleComponent.h"
+#include "Math/FloatPacker.h"
 
 
 UModuleSubsystem::UModuleSubsystem()
@@ -74,24 +75,63 @@ void UModuleSubsystem::BindModule_Implementation(const TScriptInterface<IModuleC
 {
 	UE_LOG(LogTemp, Warning, TEXT("BindModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
 
-	FString ModuleName = ModuleClass->Execute_GetModuleName(ModuleClass.GetObject());
-	Modules.Add(ModuleName, ModuleClass);
+	UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClass.GetObject())->FindComponentByClass<UModuleComponentBase>();
 
-	UE_LOG(LogTemp, Warning, TEXT("Added %s Module"), *ModuleName);
+	if (ModuleComponent)
+	{
+		FString ModuleName = ModuleClass->Execute_GetModuleName(ModuleClass.GetObject());
+		Modules.Add(ModuleName, ModuleClass);
+
+		UE_LOG(LogTemp, Warning, TEXT("Added %s Module"), *ModuleName);	
+	}
 }
 
 void UModuleSubsystem::InvokeModuleByName_Implementation(const FString& ModuleName, bool& isEmpty)
 {
-	InvokeModule(*Modules.Find(ModuleName), isEmpty);
+	InvokeModule(*Modules.Find(ModuleName), Modules,isEmpty);
 }
 
 void UModuleSubsystem::InvokeModuleByClass_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass,
 	bool& isEmpty)
 {
-	InvokeModule(ModuleClass, isEmpty);
+	InvokeModule(ModuleClass, Modules, isEmpty);
 }
 
-void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty)
+UModuleComponentBase* UModuleSubsystem::GetModuleByName_Implementation(const FString& ModuleName, bool& isEmpty)
+{
+	TScriptInterface<IModuleClassInterface>* ModuleClass = Modules.Find(ModuleName);
+	if (ModuleClass)
+	{
+		UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClass->GetObject())->FindComponentByClass<UModuleComponentBase>();
+		if (ModuleComponent)
+		{
+			isEmpty = true;
+			return ModuleComponent;
+		}
+	}
+	isEmpty = false;
+	return nullptr;
+}
+
+void UModuleSubsystem::BindInvokeEventToAllModule_Implementation(
+	const TScriptInterface<IModuleClassInterface>& ModuleClass)
+{
+	for (TMap<FString, TScriptInterface<IModuleClassInterface>>::TIterator It(Modules); It; ++It)
+	{
+		TScriptInterface<IModuleClassInterface> ModuleClassInterface = It.Value();
+		if (ModuleClassInterface)
+		{
+			UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClassInterface.GetObject())->FindComponentByClass<UModuleComponentBase>();
+			if (ModuleComponent)
+			{
+				IModuleComponentInterface::Execute_BindInvokeEvent(ModuleComponent, ModuleClass);
+			}
+		}
+	}
+	
+}
+
+void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, bool& isEmpty)
 {
 	UE_LOG(LogTemp, Warning, TEXT("InvokeModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
 
@@ -100,22 +140,16 @@ void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface
 	isEmpty = !IsValid(ModuleClass1->GetObject());
 	if (!isEmpty)
 	{
-		TArray<FString> KeysArray;
-		int32 KeysNum = Modules.GetKeys(KeysArray);
-		for (TArray<FString>::TIterator It(KeysArray); It; ++It)
+		AActor* Actor = Cast<AActor>(ModuleClass1->GetObject());
+		UModuleComponent* Component = Actor->FindComponentByClass<UModuleComponent>();
+		if (Component && RuleProcessingClassArr.Num() > 0)
 		{
-			FString& Key = *It;
-			TScriptInterface<IModuleClassInterface>* ModuleClass2 = Modules.Find(Key);
-			AActor* Actor = Cast<AActor>(ModuleClass2->GetObject());
-			UModuleComponent* Component = Actor->FindComponentByClass<UModuleComponent>();
-			if (Component && RuleProcessingClassArr.Num() > 0)
+			for (ARuleProcessingClassBase* ProcessingClassArr : RuleProcessingClassArr)
 			{
-				for (ARuleProcessingClassBase* ProcessingClassArr : RuleProcessingClassArr)
-				{
-					ProcessingClassArr->HandleInvocation(Component);
-				}
+				ProcessingClassArr->HandleInvocation(Component, NewModules);
 			}
 		}
+		
 	}
 }
 

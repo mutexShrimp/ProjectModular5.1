@@ -5,6 +5,6 @@
 
 #include "Class/RuleProcessingClassBase.h"
 
-void UInvokeProcessingAbstractObject::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, FRule Rule)
+void UInvokeProcessingAbstractObject::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule)
 {
 }

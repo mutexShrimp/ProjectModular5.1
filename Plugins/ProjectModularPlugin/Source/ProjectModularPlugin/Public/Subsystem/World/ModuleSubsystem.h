@@ -8,6 +8,7 @@
 #include "ModuleSubsystem.generated.h"
 
 class ARuleProcessingClassBase;
+
 /**
  * 
  */
@@ -25,7 +26,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
 	void BindModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
 	virtual void BindModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);
-
+	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
 	void InvokeModuleByName(const FString& ModuleName, bool& isEmpty);
 	virtual void InvokeModuleByName_Implementation(const FString& ModuleName, bool& isEmpty);
@@ -34,9 +35,16 @@ public:
 	void InvokeModuleByClass(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
 	virtual void InvokeModuleByClass_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UModuleComponentBase* GetModuleByName(const FString& ModuleName, bool& isEmpty);
+	virtual UModuleComponentBase* GetModuleByName_Implementation(const FString& ModuleName, bool& isEmpty);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	void BindInvokeEventToAllModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
+	virtual void BindInvokeEventToAllModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);
 	
 private:
-	void InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
+	void InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, bool& isEmpty);
 
 	void Reset();
 	

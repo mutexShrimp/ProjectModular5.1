@@ -3,6 +3,8 @@
 
 #include "Component/ModuleComponentBase.h"
 
+#include "Class/ModuleClassInterface.h"
+
 // Sets default values for this component's properties
 UModuleComponentBase::UModuleComponentBase()
 {

@@ -16,7 +16,7 @@ class PROJECTMODULARPLUGIN_API UInvokeProcessingAbstractObject : public UObject
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
-	void InvokeProcessing(UModuleComponent* ModuleComponent, FRule Rule);
-	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, FRule Rule);
+	void InvokeProcessing(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule);
+	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule);
 	
 };

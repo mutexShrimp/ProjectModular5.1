@@ -15,7 +15,8 @@ class PROJECTMODULARPLUGIN_API UInvokeProcessing_AllModule : public UInvokeProce
 	GENERATED_BODY()
 
 public:
-	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, FRule Rule) override;
+	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent,
+		const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule) override;
 };
 
 

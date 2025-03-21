@@ -2,7 +2,6 @@
 
 
 #include "Component/ModuleComponent.h"
-#include "Class/ModuleClassInterface.h"
 #include "Component/ModuleComponentInterface.h"
 #include "Subsystem/World/ModuleSubsystem.h"
 #include "Subsystem/World/ModuleSubsystemInterface.h"
@@ -31,7 +30,7 @@ void UModuleComponent::BeginPlay()
 			UModuleSubsystem* ModuleSubsystem = World->GetSubsystem<UModuleSubsystem>();
 			TScriptInterface<IModuleClassInterface> ModuleClassInterface(GetOwner());
 			IModuleSubsystemInterface::Execute_BindModule(ModuleSubsystem, ModuleClassInterface);
-			IModuleComponentInterface::Execute_BindInvokeEvent(this, ModuleClassInterface);
+			//IModuleComponentInterface::Execute_BindInvokeEvent(this, ModuleClassInterface);
 			
 		}
 	}

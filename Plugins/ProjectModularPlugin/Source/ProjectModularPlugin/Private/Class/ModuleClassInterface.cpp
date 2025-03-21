@@ -10,7 +10,7 @@ FString IModuleClassInterface::GetModuleName_Implementation()
 	return FString();
 }
 
-void IModuleClassInterface::ModuleEvent_Implementation(const FString& EventName)
+void IModuleClassInterface::ModuleEvent_Implementation(const FString& ModuleName, const FString& PrevModuleName, const FString& EventName)
 {
 }
 

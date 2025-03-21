@@ -7,6 +7,7 @@
 #include "UObject/Interface.h"
 #include "ModuleSubsystemInterface.generated.h"
 
+class UModuleComponentBase;
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UModuleSubsystemInterface : public UInterface
@@ -31,4 +32,11 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
 	void InvokeModuleByClass(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Function")
+	UModuleComponentBase* GetModuleByName(const FString& ModuleName, bool& isEmpty);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Function")
+	void BindInvokeEventToAllModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
+	
 };

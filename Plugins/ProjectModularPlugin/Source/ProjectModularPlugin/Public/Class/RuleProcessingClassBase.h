@@ -74,16 +74,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void HandleInvocation(UModuleComponent* ModuleComponent);
+	void HandleInvocation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Init Rule Processer"))
-	TArray<FRule> InitializeRuleProcessor(UModuleComponent* ModuleComponent);
-	virtual TArray<FRule> InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent);
+	TArray<FRule> InitializeRuleProcessor(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
+	virtual TArray<FRule> InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 	
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Add Rule Processer"))
-	TArray<FRule> AddRuleProcessor(UModuleComponent* ModuleComponent);
-	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent);
+	TArray<FRule> AddRuleProcessor(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
+	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 
 protected:
 	TArray<FRule> SortBothRules(TArray<FRule> DefaultRules, TArray<FRule> NewRules);

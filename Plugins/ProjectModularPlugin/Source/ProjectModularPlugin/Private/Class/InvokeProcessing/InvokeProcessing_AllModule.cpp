@@ -6,12 +6,25 @@
 #include "Class/RuleProcessingClassBase.h"
 #include "Component/ModuleComponent.h"
 
-void UInvokeProcessing_AllModule::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, FRule Rule)
+void UInvokeProcessing_AllModule::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent,
+	const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule)
 {
-	TArray<TScriptInterface<IModuleClassInterface>> ModuleClasses = ModuleComponent->GetInvokeEventBinders();
-	for (TScriptInterface<IModuleClassInterface> ModuleClass : ModuleClasses)
+	FString ModuleName = IModuleClassInterface::Execute_GetModuleName(ModuleComponent->GetOwner());
+	for (TTuple<FString, TScriptInterface<IModuleClassInterface>> NewModule : NewModules)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("InvokeProcessing Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
-		IModuleClassInterface::Execute_ModuleEvent(ModuleClass.GetObject(), Rule.RuleName);
+		TScriptInterface<IModuleClassInterface> ModuleClassInterface = NewModule.Get<1>();
+
+		IModuleClassInterface::Execute_ModuleEvent(ModuleClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);
+
+		UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClassInterface.GetObject())->FindComponentByClass<UModuleComponentBase>();
+		if (ModuleComponent)
+		{
+			for (TScriptInterface<IModuleClassInterface> BinderClassInterface : ModuleComponent->GetInvokeEventBinders())
+			{
+				IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);
+			}
+		}
+		
 	}
+	
 }
