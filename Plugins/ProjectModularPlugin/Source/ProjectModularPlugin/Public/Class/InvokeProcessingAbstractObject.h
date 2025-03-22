@@ -6,6 +6,9 @@
 #include "UObject/NoExportTypes.h"
 #include "InvokeProcessingAbstractObject.generated.h"
 
+struct FRule;
+class IModuleClassInterface;
+class UModuleComponent;
 /**
  * 
  */

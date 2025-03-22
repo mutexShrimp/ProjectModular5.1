@@ -16,10 +16,10 @@ void UInvokeProcessing_AllModule::InvokeProcessing_Implementation(UModuleCompone
 
 		IModuleClassInterface::Execute_ModuleEvent(ModuleClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);
 
-		UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClassInterface.GetObject())->FindComponentByClass<UModuleComponentBase>();
-		if (ModuleComponent)
+		UModuleComponentBase* L_ModuleComponent = Cast<AActor>(ModuleClassInterface.GetObject())->FindComponentByClass<UModuleComponentBase>();
+		if (L_ModuleComponent)
 		{
-			for (TScriptInterface<IModuleClassInterface> BinderClassInterface : ModuleComponent->GetInvokeEventBinders())
+			for (TScriptInterface<IModuleClassInterface> BinderClassInterface : L_ModuleComponent->GetInvokeEventBinders())
 			{
 				IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);
 			}
