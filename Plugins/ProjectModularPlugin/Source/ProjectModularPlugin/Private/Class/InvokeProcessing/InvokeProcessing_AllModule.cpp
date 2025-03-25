@@ -10,6 +10,8 @@ void UInvokeProcessing_AllModule::InvokeProcessing_Implementation(UModuleCompone
 	const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule)
 {
 	FString ModuleName = IModuleClassInterface::Execute_GetModuleName(ModuleComponent->GetOwner());
+
+	TArray<UObject*> ModuleObjects;
 	for (TTuple<FString, TScriptInterface<IModuleClassInterface>> NewModule : NewModules)
 	{
 		TScriptInterface<IModuleClassInterface> ModuleClassInterface = NewModule.Get<1>();
@@ -21,7 +23,14 @@ void UInvokeProcessing_AllModule::InvokeProcessing_Implementation(UModuleCompone
 		{
 			for (TScriptInterface<IModuleClassInterface> BinderClassInterface : L_ModuleComponent->GetInvokeEventBinders())
 			{
-				IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);
+				// 处理同个对象绑定多个模块多次实现相同事件问题
+				if (!(ModuleObjects.Contains(BinderClassInterface.GetObject())))
+				{
+					ModuleObjects.Add(BinderClassInterface.GetObject());
+			
+					// 执行事件
+					IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);	
+				}
 			}
 		}
 		

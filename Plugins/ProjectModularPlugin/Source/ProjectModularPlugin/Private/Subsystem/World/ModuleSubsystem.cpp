@@ -136,12 +136,12 @@ void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface
 	UE_LOG(LogTemp, Warning, TEXT("InvokeModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
 
 	FString ModuleName = ModuleClass->Execute_GetModuleName(ModuleClass.GetObject());
-	TScriptInterface<IModuleClassInterface>* ModuleClass1 = Modules.Find(ModuleName);
-	isEmpty = !IsValid(ModuleClass1->GetObject());
+	TScriptInterface<IModuleClassInterface>* ModuleClassInterface = Modules.Find(ModuleName);
+	isEmpty = !IsValid(ModuleClassInterface->GetObject());
 	if (!isEmpty)
 	{
-		AActor* Actor = Cast<AActor>(ModuleClass1->GetObject());
-		UModuleComponent* Component = Actor->FindComponentByClass<UModuleComponent>();
+		AActor* ModuleActor = Cast<AActor>(ModuleClassInterface->GetObject());
+		UModuleComponent* Component = ModuleActor->FindComponentByClass<UModuleComponent>();
 		if (Component && RuleProcessingClassArr.Num() > 0)
 		{
 			for (ARuleProcessingClassBase* ProcessingClassArr : RuleProcessingClassArr)
