@@ -8,7 +8,6 @@
 #include "Class/InvokeProcessing/InvokeProcessing_AllModule_Once.h"
 #include "Class/InvokeProcessing/InvokeProcessing_CurModule.h"
 #include "Class/InvokeProcessing/InvokeProcessing_CurModule_Once.h"
-#include "Library/Blueprint/BlueprintModuleLibrary.h"
 
 // Sets default values
 ARuleProcessingClassBase::ARuleProcessingClassBase()
@@ -95,6 +94,12 @@ TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleC
 	return NewRules;
 }
 
+void ARuleProcessingClassBase::ResetRules()
+{
+	FinalRules.Empty();
+	FinalRuleArr.Empty();
+}
+
 TArray<FRule> ARuleProcessingClassBase::SortBothRules(TArray<FRule> DefaultRules, TArray<FRule> NewRules)
 {
 	TArray<FRule> ReturnRules;
@@ -108,6 +113,8 @@ TArray<FRule> ARuleProcessingClassBase::SortBothRules(TArray<FRule> DefaultRules
 
 TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 {
+	ResetRules();
+	
 	TArray<FRule> ReturnRules = DefaultRules;
 	TLinkedList<FRule>* LinkedList = nullptr;
 	TLinkedList<FRule>* LinkedList_Reverse = nullptr;

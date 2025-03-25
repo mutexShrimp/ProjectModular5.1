@@ -86,6 +86,8 @@ public:
 	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 
 protected:
+	void ResetRules();
+	
 	TArray<FRule> SortBothRules(TArray<FRule> DefaultRules, TArray<FRule> NewRules);
 
 	TArray<FRule> SortRules(TArray<FRule> DefaultRules);

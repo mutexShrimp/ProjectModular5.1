@@ -113,7 +113,7 @@ UModuleComponentBase* UModuleSubsystem::GetModuleByName_Implementation(const FSt
 	return nullptr;
 }
 
-void UModuleSubsystem::BindInvokeEventToAllModule_Implementation(
+/*void UModuleSubsystem::BindInvokeEventToAllModule_Implementation(
 	const TScriptInterface<IModuleClassInterface>& ModuleClass)
 {
 	for (TMap<FString, TScriptInterface<IModuleClassInterface>>::TIterator It(Modules); It; ++It)
@@ -129,7 +129,7 @@ void UModuleSubsystem::BindInvokeEventToAllModule_Implementation(
 		}
 	}
 	
-}
+}*/
 
 void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, bool& isEmpty)
 {

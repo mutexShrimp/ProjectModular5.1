@@ -39,9 +39,9 @@ public:
 	UModuleComponentBase* GetModuleByName(const FString& ModuleName, bool& isEmpty);
 	virtual UModuleComponentBase* GetModuleByName_Implementation(const FString& ModuleName, bool& isEmpty);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	/*UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
 	void BindInvokeEventToAllModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
-	virtual void BindInvokeEventToAllModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);
+	virtual void BindInvokeEventToAllModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);*/
 	
 private:
 	void InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, bool& isEmpty);

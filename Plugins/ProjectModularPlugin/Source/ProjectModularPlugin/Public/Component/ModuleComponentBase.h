@@ -8,6 +8,7 @@
 #include "ModuleComponentBase.generated.h"
 
 
+class IModuleClassInterface;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTMODULARPLUGIN_API UModuleComponentBase : public UActorComponent,
 	public IModuleComponentInterface

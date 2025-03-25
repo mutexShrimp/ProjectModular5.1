@@ -36,7 +36,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
 	UModuleComponentBase* GetModuleByName(const FString& ModuleName, bool& isEmpty);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Function")
-	void BindInvokeEventToAllModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
+	// UFUNCTION(BlueprintNativeEvent, Category = "Function")
+	// void BindInvokeEventToAllModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
 	
 };
