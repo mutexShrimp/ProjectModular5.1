@@ -5,57 +5,10 @@
 #include "CoreMinimal.h"
 #include "Component/ModuleComponent.h"
 #include "GameFramework/Actor.h"
+#include "ModularTypes.h"
 #include "RuleProcessingClassBase.generated.h"
 
 class UInvokeProcessingAbstractObject;
-
-UENUM(BlueprintType)
-enum class ERuleTriggerType : uint8
-{
-	Pre UMETA(DisplayName = "Pre"),
-	Post UMETA(DisplayName = "Post")
-};
-
-UENUM(BlueprintType)
-enum class ELinkedListToward : uint8
-{
-	Forward UMETA(DisplayName = "Forward"),
-	Backward UMETA(DisplayName = "Backward")
-};
-
-USTRUCT(BlueprintType)
-struct FRule
-{
-	GENERATED_USTRUCT_BODY()
-	
-	FRule() = default;
-	
-	FRule(FString RuleName, UInvokeProcessingAbstractObject* InvokeProcessingObject = nullptr, FString TriggingDependencies = TEXT(""), ERuleTriggerType TriggerType = ERuleTriggerType::Post, int32 TriggerLevel = 0)
-	{
-		this->RuleName = RuleName;
-		this->InvokeProcessingObject = InvokeProcessingObject;
-		this->TriggingDependencies = TriggingDependencies;
-		this->TriggerType = TriggerType;
-		this->TriggerLevel = TriggerLevel;
-	}
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString RuleName = TEXT("MyNewRule");
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString TriggingDependencies = TEXT("");
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UInvokeProcessingAbstractObject* InvokeProcessingObject = nullptr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ERuleTriggerType TriggerType = ERuleTriggerType::Post;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 TriggerLevel = 0;
-
-	
-};
 
 UCLASS()
 class PROJECTMODULARPLUGIN_API ARuleProcessingClassBase : public AActor

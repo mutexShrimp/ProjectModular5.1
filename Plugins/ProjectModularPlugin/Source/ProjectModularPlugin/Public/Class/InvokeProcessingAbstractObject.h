@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "ModularTypes.h"
 #include "InvokeProcessingAbstractObject.generated.h"
 
-struct FRule;
 class IModuleClassInterface;
 class UModuleComponent;
 /**
