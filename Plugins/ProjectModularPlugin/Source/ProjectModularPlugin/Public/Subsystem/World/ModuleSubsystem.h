@@ -22,7 +22,8 @@ public:
 	UModuleSubsystem();
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
-	
+	virtual void BeginDestroy() override;
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
 	void BindModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
 	virtual void BindModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);

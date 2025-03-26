@@ -23,7 +23,7 @@ void UInvokeProcessing_AllModule::InvokeProcessing_Implementation(UModuleCompone
 		{
 			for (TScriptInterface<IModuleClassInterface> BinderClassInterface : L_ModuleComponent->GetInvokeEventBinders())
 			{
-				// 处理同个对象绑定多个模块多次实现相同事件问题
+				// 处理同个对象绑定多个模块后多次调用相同事件问题
 				if (!(ModuleObjects.Contains(BinderClassInterface.GetObject())))
 				{
 					ModuleObjects.Add(BinderClassInterface.GetObject());

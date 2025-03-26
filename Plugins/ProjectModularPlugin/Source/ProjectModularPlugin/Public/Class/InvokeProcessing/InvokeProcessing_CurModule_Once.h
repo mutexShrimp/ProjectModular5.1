@@ -16,10 +16,9 @@ class PROJECTMODULARPLUGIN_API UInvokeProcessing_CurModule_Once : public UInvoke
 
 public:
 	~UInvokeProcessing_CurModule_Once() override;
-
 	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent,
 	                                             const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule) override;
-
+	
 protected:
 	static TArray<FString> ModuleNameArr;
 	static TArray<FString> ModuleRuleNameArr;

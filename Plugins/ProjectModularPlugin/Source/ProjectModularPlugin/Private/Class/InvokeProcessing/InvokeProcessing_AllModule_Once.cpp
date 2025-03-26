@@ -10,6 +10,7 @@
 TArray<FString> UInvokeProcessing_AllModule_Once::ModuleNameArr;
 TArray<FString> UInvokeProcessing_AllModule_Once::ModuleRuleNameArr;
 
+
 UInvokeProcessing_AllModule_Once::~UInvokeProcessing_AllModule_Once()
 {
 	ModuleNameArr.Empty();
@@ -24,13 +25,10 @@ void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleCo
 	bool bHasModuleRule = false;
 	for (int32 i = 0; i < ModuleNameArr.Num(); i++)
 	{
-		if (ModuleNameArr[i] == ModuleName)
+		if (ModuleNameArr[i] == ModuleName && ModuleRuleNameArr[i] == Rule.RuleName)
 		{
-			bHasModuleRule = ModuleRuleNameArr[i] == Rule.RuleName ? true : false;
-			if (bHasModuleRule)
-			{
-				break;
-			}
+			bHasModuleRule = true;
+			break;
 		}
 	}
 
@@ -50,7 +48,7 @@ void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleCo
 			{
 				for (TScriptInterface<IModuleClassInterface> BinderClassInterface : L_ModuleComponent->GetInvokeEventBinders())
 				{
-					// 处理同个对象绑定多个模块多次实现相同事件问题
+					// 处理同个对象绑定多个模块后多次调用相同事件问题
 					if (!(ModuleObjects.Contains(BinderClassInterface.GetObject())))
 					{
 						ModuleObjects.Add(BinderClassInterface.GetObject());
@@ -64,3 +62,4 @@ void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleCo
 	}
 	
 }
+

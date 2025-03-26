@@ -85,13 +85,14 @@ public:
 	TArray<FRule> AddRuleProcessor(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 
+
 protected:
 	void ResetRules();
 	
 	TArray<FRule> SortBothRules(TArray<FRule> DefaultRules, TArray<FRule> NewRules);
 
 	TArray<FRule> SortRules(TArray<FRule> DefaultRules);
-
+	
 	void PrintArrayRules(TArray<TArray<FRule>> DefaultArrayRules);
 	
 	void PrintRules(TArray<FRule> DefaultRules);
@@ -102,6 +103,8 @@ protected:
 
 	TLinkedList<FRule>* GetPrevLink(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList);
 	TLinkedList<FRule>* GetNewPrevLink(TLinkedList<FRule>* LinkedList, TLinkedList<FRule>* __HeadLinkedList);
+
+	
 	
 private:
 	TArray<FRule> Rules;
@@ -112,7 +115,10 @@ private:
 
 	TArray<TArray<FRule>> FinalRules;
 	TArray<FRule> FinalRuleArr;
-	
+
+protected:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TMap<TSubclassOf<UInvokeProcessingAbstractObject>, UInvokeProcessingAbstractObject*> InvokeProcessingObjects;
 };
 
 

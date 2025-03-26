@@ -68,7 +68,14 @@ void UModuleSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Too many RuleProcessingClasses (%d Classes) causing confusion"), Classes.Num());
 		}
+		
 	}
+}
+
+void UModuleSubsystem::BeginDestroy()
+{
+	Super::BeginDestroy();
+	
 }
 
 void UModuleSubsystem::BindModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass)

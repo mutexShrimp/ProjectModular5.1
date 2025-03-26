@@ -9,6 +9,7 @@
 TArray<FString> UInvokeProcessing_CurModule_Once::ModuleNameArr;
 TArray<FString> UInvokeProcessing_CurModule_Once::ModuleRuleNameArr;
 
+
 UInvokeProcessing_CurModule_Once::~UInvokeProcessing_CurModule_Once()
 {
 	ModuleNameArr.Empty();
@@ -48,3 +49,4 @@ void UInvokeProcessing_CurModule_Once::InvokeProcessing_Implementation(UModuleCo
 		}
 	}
 }
+

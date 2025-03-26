@@ -61,15 +61,24 @@ TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(U
 	UE_LOG(LogTemp, Warning, TEXT("InitializeRuleProcessor Function is Invoked"));
 
 	TArray<FRule> NewRules;
-	
-	UInvokeProcessing_AllModule* InvokeProcessingObject_AllModule = NewObject<UInvokeProcessing_AllModule>(this);
-	UInvokeProcessing_CurModule* InvokeProcessingObject_CurrentModule = NewObject<UInvokeProcessing_CurModule>(this);
-	
-	NewRules.Add(FRule(TEXT("ModuleInitializationBegins_InvokeAll"), InvokeProcessingObject_AllModule));
 
-	NewRules.Add(FRule(TEXT("ModuleInitializationCompleted_InvokeAll"), InvokeProcessingObject_AllModule));
+	if (!(InvokeProcessingObjects.Contains(UInvokeProcessing_AllModule::StaticClass())))
+	{
+		InvokeProcessingObjects.Add(UInvokeProcessing_AllModule::StaticClass(), NewObject<UInvokeProcessing_AllModule>(this));	
+	}
+	if (!(InvokeProcessingObjects.Contains(UInvokeProcessing_CurModule::StaticClass())))
+	{
+		InvokeProcessingObjects.Add(UInvokeProcessing_CurModule::StaticClass(), NewObject<UInvokeProcessing_CurModule>(this));	
+	}
+	
+	// UInvokeProcessing_AllModule* InvokeProcessingObject_AllModule = NewObject<UInvokeProcessing_AllModule>(this);
+	// UInvokeProcessing_CurModule* InvokeProcessingObject_CurrentModule = NewObject<UInvokeProcessing_CurModule>(this);
+	
+	NewRules.Add(FRule(TEXT("ModuleInitializationBegins_InvokeAll"), *InvokeProcessingObjects.Find(UInvokeProcessing_AllModule::StaticClass())));
 
-	NewRules.Add(FRule(TEXT("InitModule"), InvokeProcessingObject_CurrentModule, TEXT("ModuleInitializationBegins_InvokeAll"), ERuleTriggerType::Post, 10));
+	NewRules.Add(FRule(TEXT("ModuleInitializationCompleted_InvokeAll"), *InvokeProcessingObjects.Find(UInvokeProcessing_AllModule::StaticClass())));
+
+	NewRules.Add(FRule(TEXT("InitModule"), *InvokeProcessingObjects.Find(UInvokeProcessing_CurModule::StaticClass()), TEXT("ModuleInitializationBegins_InvokeAll"), ERuleTriggerType::Post, 10));
 	
 	return NewRules;
 }
@@ -79,17 +88,26 @@ TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleC
 	UE_LOG(LogTemp, Warning, TEXT("AddRuleProcessor Function is Invoked"));
 
 	TArray<FRule> NewRules;
+
+	if (!(InvokeProcessingObjects.Contains(UInvokeProcessing_CurModule_Once::StaticClass())))
+	{
+		InvokeProcessingObjects.Add(UInvokeProcessing_CurModule_Once::StaticClass(), NewObject<UInvokeProcessing_CurModule_Once>(this));	
+	}
+	if (!(InvokeProcessingObjects.Contains(UInvokeProcessing_AllModule_Once::StaticClass())))
+	{
+		InvokeProcessingObjects.Add(UInvokeProcessing_AllModule_Once::StaticClass(), NewObject<UInvokeProcessing_AllModule_Once>(this));	
+	}
 	
-	UInvokeProcessing_CurModule_Once* InvokeProcessingObject_CurrentModule_DoOnce = NewObject<UInvokeProcessing_CurModule_Once>(this);
-	UInvokeProcessing_AllModule_Once* InvokeProcessingObject_AllModule_DoOnce = NewObject<UInvokeProcessing_AllModule_Once>(this);
+	// UInvokeProcessing_CurModule_Once* InvokeProcessingObject_CurrentModule_DoOnce = NewObject<UInvokeProcessing_CurModule_Once>(this);
+	// UInvokeProcessing_AllModule_Once* InvokeProcessingObject_AllModule_DoOnce = NewObject<UInvokeProcessing_AllModule_Once>(this);
+	
+	NewRules.Add(FRule(TEXT("DoOnce_PreInitModule_InvokeAll"), *InvokeProcessingObjects.Find(UInvokeProcessing_AllModule_Once::StaticClass()), TEXT("InitModule"), ERuleTriggerType::Pre, 10));
 
-	NewRules.Add(FRule(TEXT("DoOnce_PreInitModule_InvokeAll"), InvokeProcessingObject_AllModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Pre, 10));
+	NewRules.Add(FRule(TEXT("DoOnce_PreInitModule"), *InvokeProcessingObjects.Find(UInvokeProcessing_CurModule_Once::StaticClass()), TEXT("InitModule"), ERuleTriggerType::Pre, 11));
 
-	NewRules.Add(FRule(TEXT("DoOnce_PreInitModule"), InvokeProcessingObject_CurrentModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Pre, 11));
+	NewRules.Add(FRule(TEXT("DoOnce_PostInitModule_InvokeAll"), *InvokeProcessingObjects.Find(UInvokeProcessing_AllModule_Once::StaticClass()), TEXT("InitModule"), ERuleTriggerType::Post, 10));
 
-	NewRules.Add(FRule(TEXT("DoOnce_PostInitModule_InvokeAll"), InvokeProcessingObject_AllModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Post, 10));
-
-	NewRules.Add(FRule(TEXT("DoOnce_PostInitModule"), InvokeProcessingObject_CurrentModule_DoOnce, TEXT("InitModule"), ERuleTriggerType::Post, 11));
+	NewRules.Add(FRule(TEXT("DoOnce_PostInitModule"), *InvokeProcessingObjects.Find(UInvokeProcessing_CurModule_Once::StaticClass()), TEXT("InitModule"), ERuleTriggerType::Post, 11));
 	
 	return NewRules;
 }
