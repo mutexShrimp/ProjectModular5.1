@@ -74,16 +74,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void HandleInvocation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
+	void HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Init Rule Processer"))
-	TArray<FRule> InitializeRuleProcessor(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
-	virtual TArray<FRule> InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
+	TArray<FRule> InitializeRuleProcessor(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
+	virtual TArray<FRule> InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 	
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Add Rule Processer"))
-	TArray<FRule> AddRuleProcessor(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
-	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
+	TArray<FRule> AddRuleProcessor(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
+	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules);
 
 
 protected:

@@ -16,7 +16,8 @@ class PROJECTMODULARPLUGIN_API UInvokeProcessing_AllModule_Once : public UInvoke
 
 public:
 	~UInvokeProcessing_AllModule_Once() override;
-	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent,
+	
+	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, 
 	                                             const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule) override;
 
 protected:

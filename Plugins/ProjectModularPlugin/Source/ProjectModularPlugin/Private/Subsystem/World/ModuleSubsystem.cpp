@@ -120,24 +120,6 @@ UModuleComponentBase* UModuleSubsystem::GetModuleByName_Implementation(const FSt
 	return nullptr;
 }
 
-/*void UModuleSubsystem::BindInvokeEventToAllModule_Implementation(
-	const TScriptInterface<IModuleClassInterface>& ModuleClass)
-{
-	for (TMap<FString, TScriptInterface<IModuleClassInterface>>::TIterator It(Modules); It; ++It)
-	{
-		TScriptInterface<IModuleClassInterface> ModuleClassInterface = It.Value();
-		if (ModuleClassInterface)
-		{
-			UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClassInterface.GetObject())->FindComponentByClass<UModuleComponentBase>();
-			if (ModuleComponent)
-			{
-				IModuleComponentInterface::Execute_BindInvokeEvent(ModuleComponent, ModuleClass);
-			}
-		}
-	}
-	
-}*/
-
 void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, bool& isEmpty)
 {
 	UE_LOG(LogTemp, Warning, TEXT("InvokeModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
@@ -153,10 +135,9 @@ void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface
 		{
 			for (ARuleProcessingClassBase* ProcessingClassArr : RuleProcessingClassArr)
 			{
-				ProcessingClassArr->HandleInvocation(Component, NewModules);
+				ProcessingClassArr->HandleInvocation(Component, PreviousComponent, NewModules);
 			}
 		}
-		
 	}
 }
 

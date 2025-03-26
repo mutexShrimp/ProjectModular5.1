@@ -16,11 +16,20 @@ UInvokeProcessing_CurModule_Once::~UInvokeProcessing_CurModule_Once()
 	ModuleRuleNameArr.Empty();
 }
 
-void UInvokeProcessing_CurModule_Once::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent,
+void UInvokeProcessing_CurModule_Once::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, 
                                                                        const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule)
 {
 	FString ModuleName = IModuleClassInterface::Execute_GetModuleName(ModuleComponent->GetOwner());
-
+	FString PreviousModuleName;
+	if (PreviousComponent != nullptr)
+	{
+		PreviousModuleName = IModuleClassInterface::Execute_GetModuleName(PreviousComponent->GetOwner());	
+	}
+	else
+	{
+		PreviousModuleName = TEXT("Null Module");
+	}
+	
 	bool bHasModuleRule = false;
 	for (int32 i = 0; i < ModuleNameArr.Num(); i++)
 	{
@@ -41,11 +50,11 @@ void UInvokeProcessing_CurModule_Once::InvokeProcessing_Implementation(UModuleCo
 		
 		AActor* ModuleActor = ModuleComponent->GetOwner();
 
-		IModuleClassInterface::Execute_ModuleEvent(ModuleActor, ModuleName, TEXT(""), Rule.RuleName);
+		IModuleClassInterface::Execute_ModuleEvent(ModuleActor, ModuleName, PreviousModuleName, Rule.RuleName);
 	
 		for (TScriptInterface<IModuleClassInterface> BinderClassInterface : ModuleComponent->GetInvokeEventBinders())
 		{
-			IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);
+			IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, PreviousModuleName, Rule.RuleName);
 		}
 	}
 }

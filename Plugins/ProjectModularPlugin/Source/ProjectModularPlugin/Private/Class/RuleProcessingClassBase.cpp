@@ -31,12 +31,12 @@ void ARuleProcessingClassBase::Tick(float DeltaTime)
 
 }
 
-void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
+void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
 {
 	// Sort
-	TArray<FRule> DefaultRules = InitializeRuleProcessor(ModuleComponent, NewModules);
+	TArray<FRule> DefaultRules = InitializeRuleProcessor(ModuleComponent, PreviousComponent, NewModules);
 
-	TArray<FRule> AddedRules = AddRuleProcessor(ModuleComponent, NewModules);
+	TArray<FRule> AddedRules = AddRuleProcessor(ModuleComponent, PreviousComponent, NewModules);
 
 	if (!DefaultRules.IsEmpty() || !AddedRules.IsEmpty())
 	{
@@ -50,13 +50,15 @@ void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponen
 		// Invoke
 		for (FRule DefaultRule : RullRules)
 		{
-			DefaultRule.InvokeProcessingObject->InvokeProcessing(ModuleComponent, NewModules, DefaultRule);
-		}	
+			DefaultRule.InvokeProcessingObject->InvokeProcessing(ModuleComponent, PreviousComponent, NewModules, DefaultRule);
+		}
+
+		PreviousComponent = ModuleComponent;
 	}
 	
 }
 
-TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
+TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
 {
 	UE_LOG(LogTemp, Warning, TEXT("InitializeRuleProcessor Function is Invoked"));
 
@@ -83,7 +85,7 @@ TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(U
 	return NewRules;
 }
 
-TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
+TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
 {
 	UE_LOG(LogTemp, Warning, TEXT("AddRuleProcessor Function is Invoked"));
 

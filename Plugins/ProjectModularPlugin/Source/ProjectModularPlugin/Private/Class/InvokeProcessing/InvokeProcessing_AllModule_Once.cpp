@@ -17,10 +17,20 @@ UInvokeProcessing_AllModule_Once::~UInvokeProcessing_AllModule_Once()
 	ModuleRuleNameArr.Empty();
 }
 
-void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent,
+void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, 
                                                                        const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule)
 {
 	FString ModuleName = IModuleClassInterface::Execute_GetModuleName(ModuleComponent->GetOwner());
+	FString PreviousModuleName;
+	if (PreviousComponent != nullptr)
+	{
+		PreviousModuleName = IModuleClassInterface::Execute_GetModuleName(PreviousComponent->GetOwner());	
+	}
+	else
+	{
+		PreviousModuleName = TEXT("Null Module");
+	}
+	
 	TArray<UObject*> ModuleObjects;
 	bool bHasModuleRule = false;
 	for (int32 i = 0; i < ModuleNameArr.Num(); i++)
@@ -41,7 +51,7 @@ void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleCo
 		{
 			TScriptInterface<IModuleClassInterface> ModuleClassInterface = NewModule.Get<1>();
 
-			IModuleClassInterface::Execute_ModuleEvent(ModuleClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);
+			IModuleClassInterface::Execute_ModuleEvent(ModuleClassInterface.GetObject(), ModuleName, PreviousModuleName, Rule.RuleName);
 
 			UModuleComponentBase* L_ModuleComponent = Cast<AActor>(ModuleClassInterface.GetObject())->FindComponentByClass<UModuleComponentBase>();
 			if (L_ModuleComponent)
@@ -54,7 +64,7 @@ void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleCo
 						ModuleObjects.Add(BinderClassInterface.GetObject());
 			
 						// 执行事件
-						IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, TEXT(""), Rule.RuleName);	
+						IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, PreviousModuleName, Rule.RuleName);	
 					}
 				}
 			}
