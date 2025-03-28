@@ -3,7 +3,7 @@
 
 #include "Class/InvokeProcessing/InvokeProcessing_AllModule_Once.h"
 
-#include "Class/ModuleClassInterface.h"
+#include "Class/ModuleEventCallableInterface.h"
 #include "Class/RuleProcessingClassBase.h"
 #include "Component/ModuleComponent.h"
 
@@ -18,13 +18,13 @@ UInvokeProcessing_AllModule_Once::~UInvokeProcessing_AllModule_Once()
 }
 
 void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, 
-                                                                       const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule)
+                                                                       const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, FRule Rule)
 {
-	FString ModuleName = IModuleClassInterface::Execute_GetModuleName(ModuleComponent->GetOwner());
+	FString ModuleName = IModuleEventCallableInterface::Execute_GetModuleName(ModuleComponent->GetOwner());
 	FString PreviousModuleName;
 	if (PreviousComponent != nullptr)
 	{
-		PreviousModuleName = IModuleClassInterface::Execute_GetModuleName(PreviousComponent->GetOwner());	
+		PreviousModuleName = IModuleEventCallableInterface::Execute_GetModuleName(PreviousComponent->GetOwner());	
 	}
 	else
 	{
@@ -47,16 +47,16 @@ void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleCo
 		ModuleNameArr.Add(ModuleName);
 		ModuleRuleNameArr.Add(Rule.RuleName);
 		
-		for (TTuple<FString, TScriptInterface<IModuleClassInterface>> NewModule : NewModules)
+		for (TTuple<FString, TScriptInterface<IModuleEventCallableInterface>> NewModule : NewModules)
 		{
-			TScriptInterface<IModuleClassInterface> ModuleClassInterface = NewModule.Get<1>();
+			TScriptInterface<IModuleEventCallableInterface> ModuleClassInterface = NewModule.Get<1>();
 
-			IModuleClassInterface::Execute_ModuleEvent(ModuleClassInterface.GetObject(), ModuleName, PreviousModuleName, Rule.RuleName);
+			IModuleEventCallableInterface::Execute_ModuleEvent(ModuleClassInterface.GetObject(), ModuleName, PreviousModuleName, Rule.RuleName);
 
 			UModuleComponentBase* L_ModuleComponent = Cast<AActor>(ModuleClassInterface.GetObject())->FindComponentByClass<UModuleComponentBase>();
 			if (L_ModuleComponent)
 			{
-				for (TScriptInterface<IModuleClassInterface> BinderClassInterface : L_ModuleComponent->GetInvokeEventBinders())
+				for (TScriptInterface<IModuleEventCallableInterface> BinderClassInterface : L_ModuleComponent->GetInvokeEventBinders())
 				{
 					// 处理同个对象绑定多个模块后多次调用相同事件问题
 					if (!(ModuleObjects.Contains(BinderClassInterface.GetObject())))
@@ -64,7 +64,7 @@ void UInvokeProcessing_AllModule_Once::InvokeProcessing_Implementation(UModuleCo
 						ModuleObjects.Add(BinderClassInterface.GetObject());
 			
 						// 执行事件
-						IModuleClassInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, PreviousModuleName, Rule.RuleName);	
+						IModuleEventCallableInterface::Execute_ModuleEvent(BinderClassInterface.GetObject(), ModuleName, PreviousModuleName, Rule.RuleName);	
 					}
 				}
 			}

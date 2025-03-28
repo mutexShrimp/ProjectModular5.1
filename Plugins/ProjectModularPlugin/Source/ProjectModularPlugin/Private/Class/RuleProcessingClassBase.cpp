@@ -3,7 +3,7 @@
 
 #include "Class/RuleProcessingClassBase.h"
 
-#include "Class/ModuleClassInterface.h"
+#include "Class/ModuleEventCallableInterface.h"
 #include "Class/InvokeProcessing/InvokeProcessing_AllModule.h"
 #include "Class/InvokeProcessing/InvokeProcessing_AllModule_Once.h"
 #include "Class/InvokeProcessing/InvokeProcessing_CurModule.h"
@@ -31,7 +31,7 @@ void ARuleProcessingClassBase::Tick(float DeltaTime)
 
 }
 
-void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
+void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules)
 {
 	// Sort
 	TArray<FRule> DefaultRules = InitializeRuleProcessor(ModuleComponent, PreviousComponent, NewModules);
@@ -58,7 +58,7 @@ void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponen
 	
 }
 
-TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
+TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules)
 {
 	UE_LOG(LogTemp, Warning, TEXT("InitializeRuleProcessor Function is Invoked"));
 
@@ -85,7 +85,7 @@ TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(U
 	return NewRules;
 }
 
-TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules)
+TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules)
 {
 	UE_LOG(LogTemp, Warning, TEXT("AddRuleProcessor Function is Invoked"));
 

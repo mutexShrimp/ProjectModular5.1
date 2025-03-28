@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Class/ModuleClassInterface.h"
+#include "Class/ModuleEventCallableInterface.h"
 #include "UObject/Interface.h"
 #include "ModuleSubsystemInterface.generated.h"
 
@@ -25,13 +25,13 @@ class PROJECTMODULARPLUGIN_API IModuleSubsystemInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
-	void BindModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
+	void BindModule(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 	
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
 	void InvokeModuleByName(const FString& ModuleName, bool& isEmpty);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
-	void InvokeModuleByClass(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
+	void InvokeModuleByClass(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, bool& isEmpty);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
 	UModuleComponentBase* GetModuleByName(const FString& ModuleName, bool& isEmpty);

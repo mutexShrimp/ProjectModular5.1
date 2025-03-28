@@ -7,7 +7,7 @@
 #include "ModularTypes.h"
 #include "InvokeProcessingAbstractObject.generated.h"
 
-class IModuleClassInterface;
+class IModuleEventCallableInterface;
 class UModuleComponent;
 /**
  * 
@@ -19,7 +19,7 @@ class PROJECTMODULARPLUGIN_API UInvokeProcessingAbstractObject : public UObject
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category = "Function")
-	void InvokeProcessing(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule);
-	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule);
+	void InvokeProcessing(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, FRule Rule);
+	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, FRule Rule);
 	
 };

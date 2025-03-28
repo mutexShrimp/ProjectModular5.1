@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "ModuleClassInterface.generated.h"
+#include "ModuleEventCallableInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UModuleClassInterface : public UInterface
+class UModuleEventCallableInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,17 +16,17 @@ class UModuleClassInterface : public UInterface
 /**
  * 
  */
-class PROJECTMODULARPLUGIN_API IModuleClassInterface
+class PROJECTMODULARPLUGIN_API IModuleEventCallableInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function | Virtual")
 	FString GetModuleName();
 	virtual FString GetModuleName_Implementation();
 	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function | Virtual")
 	void ModuleEvent(const FString& ModuleName, const FString& PrevModuleName, const FString& EventName);
 	virtual void ModuleEvent_Implementation(const FString& ModuleName, const FString& PrevModuleName, const FString& EventName);
 };

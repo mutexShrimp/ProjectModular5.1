@@ -8,7 +8,7 @@
 #include "ModuleComponentBase.generated.h"
 
 
-class IModuleClassInterface;
+class IModuleEventCallableInterface;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTMODULARPLUGIN_API UModuleComponentBase : public UActorComponent,
 	public IModuleComponentInterface
@@ -28,13 +28,13 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
-	void BindInvokeEvent(const TScriptInterface<IModuleClassInterface>& ModuleClass);
-	virtual void BindInvokeEvent_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);
+	void BindInvokeEvent(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
+	virtual void BindInvokeEvent_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 
 public:
-	TArray<TScriptInterface<IModuleClassInterface>> GetInvokeEventBinders();
+	TArray<TScriptInterface<IModuleEventCallableInterface>> GetInvokeEventBinders();
 	
 protected:
-	TArray<TScriptInterface<IModuleClassInterface>> InvokeEventBinders;
+	TArray<TScriptInterface<IModuleEventCallableInterface>> InvokeEventBinders;
 	
 };

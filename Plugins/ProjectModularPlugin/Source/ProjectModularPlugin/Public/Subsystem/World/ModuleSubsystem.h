@@ -25,28 +25,28 @@ public:
 	virtual void BeginDestroy() override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
-	void BindModule(const TScriptInterface<IModuleClassInterface>& ModuleClass);
-	virtual void BindModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass);
+	void BindModule(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
+	virtual void BindModule_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
 	void InvokeModuleByName(const FString& ModuleName, bool& isEmpty);
 	virtual void InvokeModuleByName_Implementation(const FString& ModuleName, bool& isEmpty);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
-	void InvokeModuleByClass(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
-	virtual void InvokeModuleByClass_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass, bool& isEmpty);
+	void InvokeModuleByClass(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, bool& isEmpty);
+	virtual void InvokeModuleByClass_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, bool& isEmpty);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
 	UModuleComponentBase* GetModuleByName(const FString& ModuleName, bool& isEmpty);
 	virtual UModuleComponentBase* GetModuleByName_Implementation(const FString& ModuleName, bool& isEmpty);
 	
 private:
-	void InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, bool& isEmpty);
+	void InvokeModule(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, bool& isEmpty);
 
 	void Reset();
 	
 protected:
-	TMap<FString, TScriptInterface<IModuleClassInterface>> Modules;
+	TMap<FString, TScriptInterface<IModuleEventCallableInterface>> Modules;
 	
 	TArray<ARuleProcessingClassBase*> RuleProcessingClassArr;
 

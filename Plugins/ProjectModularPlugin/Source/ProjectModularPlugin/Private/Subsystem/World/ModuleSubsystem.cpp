@@ -78,7 +78,7 @@ void UModuleSubsystem::BeginDestroy()
 	
 }
 
-void UModuleSubsystem::BindModule_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass)
+void UModuleSubsystem::BindModule_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass)
 {
 	UE_LOG(LogTemp, Warning, TEXT("BindModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
 
@@ -98,7 +98,7 @@ void UModuleSubsystem::InvokeModuleByName_Implementation(const FString& ModuleNa
 	InvokeModule(*Modules.Find(ModuleName), Modules,isEmpty);
 }
 
-void UModuleSubsystem::InvokeModuleByClass_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass,
+void UModuleSubsystem::InvokeModuleByClass_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass,
 	bool& isEmpty)
 {
 	InvokeModule(ModuleClass, Modules, isEmpty);
@@ -106,7 +106,7 @@ void UModuleSubsystem::InvokeModuleByClass_Implementation(const TScriptInterface
 
 UModuleComponentBase* UModuleSubsystem::GetModuleByName_Implementation(const FString& ModuleName, bool& isEmpty)
 {
-	TScriptInterface<IModuleClassInterface>* ModuleClass = Modules.Find(ModuleName);
+	TScriptInterface<IModuleEventCallableInterface>* ModuleClass = Modules.Find(ModuleName);
 	if (ModuleClass)
 	{
 		UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClass->GetObject())->FindComponentByClass<UModuleComponentBase>();
@@ -120,12 +120,12 @@ UModuleComponentBase* UModuleSubsystem::GetModuleByName_Implementation(const FSt
 	return nullptr;
 }
 
-void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleClassInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, bool& isEmpty)
+void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, bool& isEmpty)
 {
 	UE_LOG(LogTemp, Warning, TEXT("InvokeModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
 
 	FString ModuleName = ModuleClass->Execute_GetModuleName(ModuleClass.GetObject());
-	TScriptInterface<IModuleClassInterface>* ModuleClassInterface = Modules.Find(ModuleName);
+	TScriptInterface<IModuleEventCallableInterface>* ModuleClassInterface = Modules.Find(ModuleName);
 	isEmpty = !IsValid(ModuleClassInterface->GetObject());
 	if (!isEmpty)
 	{

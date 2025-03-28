@@ -38,21 +38,20 @@ struct FRule
 		this->TriggerLevel = TriggerLevel;
 	}
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	FString RuleName = TEXT("MyNewRule");
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	FString TriggingDependencies = TEXT("");
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	UInvokeProcessingAbstractObject* InvokeProcessingObject = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	ERuleTriggerType TriggerType = ERuleTriggerType::Post;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	int32 TriggerLevel = 0;
-
 	
 };
 

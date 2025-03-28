@@ -16,5 +16,5 @@ class PROJECTMODULARPLUGIN_API UInvokeProcessing_CurModule : public UInvokeProce
 
 public:
 	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, 
-		const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule) override;
+		const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, FRule Rule) override;
 };

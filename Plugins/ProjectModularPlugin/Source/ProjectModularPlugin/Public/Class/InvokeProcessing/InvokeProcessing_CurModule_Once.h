@@ -18,7 +18,7 @@ public:
 	~UInvokeProcessing_CurModule_Once() override;
 	
 	virtual void InvokeProcessing_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, 
-	                                             const TMap<FString, TScriptInterface<IModuleClassInterface>>& NewModules, FRule Rule) override;
+	                                             const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, FRule Rule) override;
 	
 protected:
 	static TArray<FString> ModuleNameArr;

@@ -25,10 +25,10 @@ void UModuleComponent::BeginPlay()
 	UWorld* World = GetWorld();
 	if (World != nullptr)
 	{
-		if (GetOwner()->GetClass()->ImplementsInterface(UModuleClassInterface::StaticClass()))
+		if (GetOwner()->GetClass()->ImplementsInterface(UModuleEventCallableInterface::StaticClass()))
 		{
 			UModuleSubsystem* ModuleSubsystem = World->GetSubsystem<UModuleSubsystem>();
-			TScriptInterface<IModuleClassInterface> ModuleClassInterface(GetOwner());
+			TScriptInterface<IModuleEventCallableInterface> ModuleClassInterface(GetOwner());
 			IModuleSubsystemInterface::Execute_BindModule(ModuleSubsystem, ModuleClassInterface);
 			//IModuleComponentInterface::Execute_BindInvokeEvent(this, ModuleClassInterface);
 			

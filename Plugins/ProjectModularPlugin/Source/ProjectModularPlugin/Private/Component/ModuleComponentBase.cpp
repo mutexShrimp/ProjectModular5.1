@@ -3,7 +3,7 @@
 
 #include "Component/ModuleComponentBase.h"
 
-#include "Class/ModuleClassInterface.h"
+#include "Class/ModuleEventCallableInterface.h"
 
 // Sets default values for this component's properties
 UModuleComponentBase::UModuleComponentBase()
@@ -35,13 +35,13 @@ void UModuleComponentBase::TickComponent(float DeltaTime, ELevelTick TickType, F
 }
 
 
-void UModuleComponentBase::BindInvokeEvent_Implementation(const TScriptInterface<IModuleClassInterface>& ModuleClass)
+void UModuleComponentBase::BindInvokeEvent_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Bind %s For Invoke Event"), *ModuleClass.GetObject()->GetName());
 	InvokeEventBinders.AddUnique(ModuleClass);
 }
 
-TArray<TScriptInterface<IModuleClassInterface>> UModuleComponentBase::GetInvokeEventBinders()
+TArray<TScriptInterface<IModuleEventCallableInterface>> UModuleComponentBase::GetInvokeEventBinders()
 {
 	return InvokeEventBinders;
 }
