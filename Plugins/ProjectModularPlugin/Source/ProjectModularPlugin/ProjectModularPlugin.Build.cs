@@ -1,4 +1,4 @@
-// Some copyright should be here...
+// Copyright Shrimp Chen 2025 All Rights Reserved.
 
 using UnrealBuildTool;
 

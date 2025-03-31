@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Shrimp Chen 2025 All Rights Reserved.
 
 #pragma once
 
@@ -9,7 +9,7 @@
 
 
 class IModuleEventCallableInterface;
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom))
 class PROJECTMODULARPLUGIN_API UModuleComponentBase : public UActorComponent,
 	public IModuleComponentInterface
 {
@@ -27,7 +27,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Module Component | Function | Virtual")
 	void BindInvokeEvent(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 	virtual void BindInvokeEvent_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 
