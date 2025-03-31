@@ -6,7 +6,7 @@
 #include "Class/RuleProcessingClassBase.h"
 #include "Component/ModuleComponent.h"
 #include "Math/FloatPacker.h"
-
+#include "Engine/World.h"
 
 UModuleSubsystem::UModuleSubsystem()
 {

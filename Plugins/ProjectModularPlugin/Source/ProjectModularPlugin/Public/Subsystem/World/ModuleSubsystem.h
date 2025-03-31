@@ -7,6 +7,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "ModuleSubsystem.generated.h"
 
+class UModuleComponent;
 class ARuleProcessingClassBase;
 
 /**

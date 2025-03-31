@@ -5,6 +5,7 @@
 #include "Component/ModuleComponentInterface.h"
 #include "Subsystem/World/ModuleSubsystem.h"
 #include "Subsystem/World/ModuleSubsystemInterface.h"
+#include "Engine/World.h"
 
 // Sets default values for this component's properties
 UModuleComponent::UModuleComponent()
