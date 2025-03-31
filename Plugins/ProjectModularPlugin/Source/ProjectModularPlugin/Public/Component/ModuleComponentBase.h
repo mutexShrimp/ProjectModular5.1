@@ -9,7 +9,7 @@
 
 
 class IModuleEventCallableInterface;
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom))
 class PROJECTMODULARPLUGIN_API UModuleComponentBase : public UActorComponent,
 	public IModuleComponentInterface
 {
