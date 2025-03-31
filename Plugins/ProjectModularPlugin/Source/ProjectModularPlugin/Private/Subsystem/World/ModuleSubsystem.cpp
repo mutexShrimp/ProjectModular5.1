@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Shrimp Chen 2025 All Rights Reserved.
 
 
 #include "Subsystem/World/ModuleSubsystem.h"
