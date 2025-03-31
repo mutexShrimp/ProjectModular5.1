@@ -9,7 +9,7 @@
 	"CreatedByURL": "",
 	"DocsURL": "https://blog.csdn.net/ShrimpsChen/article/details/146552623",
 	"FabURL": "com.epicgames.launcher://ue/Fab/product/a6b6721d-1589-46e8-b2cb-4b44a8aff671",
-	"MarketplaceURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/Fab/product/a6b6721d-1589-46e8-b2cb-4b44a8aff671",
 	"SupportURL": "",
 	"CanContainContent": true,
 	"IsBetaVersion": false,
@@ -20,7 +20,7 @@
 			"Name": "ProjectModularPlugin",
 			"Type": "Runtime",
 			"LoadingPhase": "PreLoadingScreen",
-			"PlatformAllowList": ["Win64", "Android"]
+			"PlatformAllowList": [ "Win64", "Android" ]
 		}
 	]
 }
