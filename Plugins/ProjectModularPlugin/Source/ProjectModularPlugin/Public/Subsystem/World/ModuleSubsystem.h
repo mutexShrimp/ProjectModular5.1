@@ -24,19 +24,19 @@ public:
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	virtual void BeginDestroy() override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Module Subsystem | Function | Virtual")
 	void BindModule(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 	virtual void BindModule_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Module Subsystem | Function | Virtual")
 	void InvokeModuleByName(const FString& ModuleName, bool& isEmpty);
 	virtual void InvokeModuleByName_Implementation(const FString& ModuleName, bool& isEmpty);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Module Subsystem | Function | Virtual")
 	void InvokeModuleByClass(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, bool& isEmpty);
 	virtual void InvokeModuleByClass_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, bool& isEmpty);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Module Subsystem | Function | Virtual")
 	UModuleComponentBase* GetModuleByName(const FString& ModuleName, bool& isEmpty);
 	virtual UModuleComponentBase* GetModuleByName_Implementation(const FString& ModuleName, bool& isEmpty);
 	

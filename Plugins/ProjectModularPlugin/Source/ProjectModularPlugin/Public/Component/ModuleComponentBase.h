@@ -27,7 +27,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Module Component | Function | Virtual")
 	void BindInvokeEvent(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 	virtual void BindInvokeEvent_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass);
 
