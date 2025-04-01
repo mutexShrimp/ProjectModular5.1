@@ -133,9 +133,19 @@ void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleEventCallableI
 		UModuleComponent* Component = ModuleActor->FindComponentByClass<UModuleComponent>();
 		if (Component && RuleProcessingClassArr.Num() > 0)
 		{
-			for (ARuleProcessingClassBase* ProcessingClassArr : RuleProcessingClassArr)
+			TArray<UClass*> Classes;
+			for (ARuleProcessingClassBase* ProcessingClass : RuleProcessingClassArr)
 			{
-				ProcessingClassArr->HandleInvocation(Component, PreviousComponent, NewModules);
+				if (ProcessingClass->GetWorld() != nullptr)
+				{
+					if (!(Classes.Contains(ProcessingClass->GetClass())))
+					{
+						if (ProcessingClass->HandleInvocation(Component, PreviousComponent, NewModules))
+						{
+							Classes.Add(ProcessingClass->GetClass());	
+						}
+					}
+				}
 			}
 		}
 	}

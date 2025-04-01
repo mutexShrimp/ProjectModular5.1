@@ -31,7 +31,7 @@ void ARuleProcessingClassBase::Tick(float DeltaTime)
 
 }
 
-void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules)
+bool ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules)
 {
 	InvokeProcessingObjects.Empty();
 	
@@ -56,8 +56,11 @@ void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponen
 		}
 
 		PreviousComponent = ModuleComponent;
+
+		return true;
 	}
-	
+
+	return false;
 }
 
 TArray<FRule> ARuleProcessingClassBase::InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules)
