@@ -146,7 +146,8 @@ void UModuleSubsystem::Reset()
 	Modules.Empty();
 	
 	RuleProcessingClassArr.Empty();
-	
+
+	PreviousComponent = nullptr;
 }
 
 

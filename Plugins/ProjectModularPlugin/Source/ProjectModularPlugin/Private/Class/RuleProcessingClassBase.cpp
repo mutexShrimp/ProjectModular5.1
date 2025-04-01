@@ -33,6 +33,8 @@ void ARuleProcessingClassBase::Tick(float DeltaTime)
 
 void ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules)
 {
+	InvokeProcessingObjects.Empty();
+	
 	// Sort
 	TArray<FRule> DefaultRules = InitializeRuleProcessor(ModuleComponent, PreviousComponent, NewModules);
 

@@ -60,7 +60,6 @@ protected:
 	
 	
 private:
-	TArray<FRule> Rules;
 
 	TLinkedList<FRule>* HeadLinkedList;
 	TLinkedList<FRule>* HeadLinkedList_Reverse;
