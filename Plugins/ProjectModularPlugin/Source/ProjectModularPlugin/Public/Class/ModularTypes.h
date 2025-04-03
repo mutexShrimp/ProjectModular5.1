@@ -12,13 +12,6 @@ enum class ERuleTriggerType : uint8
 	Post UMETA(DisplayName = "Post")
 };
 
-UENUM(BlueprintType)
-enum class ELinkedListToward : uint8
-{
-	Forward UMETA(DisplayName = "Forward"),
-	Backward UMETA(DisplayName = "Backward")
-};
-
 
 class UInvokeProcessingAbstractObject;
 
@@ -53,59 +46,6 @@ struct FRule
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Data")
 	int32 TriggerLevel = 0;
 	
-};
-
-struct FRulesOrderProcessing
-{
-	FString RuleName;
-	FRule Rule;
-	TArray<FRulesOrderProcessing> PreRules;
-	TArray<FRulesOrderProcessing> PostRules;
-	TArray<FRulesOrderProcessing> ContainsRules;
-
-	void SetRule(FRule NewRule)
-	{
-		Rule = NewRule;
-		RuleName = NewRule.RuleName;
-	}
-
-	FRule GetRule()
-	{
-		return Rule;
-	}
-
-	FString GetRuleName()
-	{
-		return Rule.RuleName;
-	}
-	
-	void AddPreRule(FRule NewRule)
-	{
-		FRulesOrderProcessing RulesOrderProcessing;
-		RulesOrderProcessing.SetRule(NewRule);
-		PreRules.Add(RulesOrderProcessing);
-		ContainsRules.Add(RulesOrderProcessing);
-	}
-
-	void AddPreRule(FRulesOrderProcessing RulesOrderProcessing)
-	{
-		PreRules.Add(RulesOrderProcessing);
-		ContainsRules.Add(RulesOrderProcessing);
-	}
-
-	void AddPostRule(FRule NewRule)
-	{
-		FRulesOrderProcessing RulesOrderProcessing;
-		RulesOrderProcessing.SetRule(NewRule);
-		PostRules.Add(RulesOrderProcessing);
-		ContainsRules.Add(RulesOrderProcessing);
-	}
-
-	void AddPostRule(FRulesOrderProcessing RulesOrderProcessing)
-	{
-		PostRules.Add(RulesOrderProcessing);
-		ContainsRules.Add(RulesOrderProcessing);
-	}
 };
 
 UCLASS()
