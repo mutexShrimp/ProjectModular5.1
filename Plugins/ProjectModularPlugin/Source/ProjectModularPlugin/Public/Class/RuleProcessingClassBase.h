@@ -29,12 +29,18 @@ public:
 
 	bool HandleInvocation(UModuleComponent* ModuleComponent, UModuleComponent*& PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules);
 	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Init Rule Processer"))
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Init Rule Processer"),
+		meta = (ToolTip =
+			"The default event names implemented are as follows.\n\nModuleInitializationBegins_InvokeAll\nInitModule\nModuleInitializationCompleted_InvokeAll\n"
+			))
 	TArray<FRule> InitializeRuleProcessor(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules);
 	virtual TArray<FRule> InitializeRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules);
 	
 	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Add Rule Processer"))
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Function", meta=(Keywords="Add Rule Processer"),
+		meta = (ToolTip =
+			"The default event names implemented are as follows.\n\nDoOnce_PreInitModule_InvokeAll\nDoOnce_PreInitModule\nDoOnce_PostInitModule\nDoOnce_PostInitModule_InvokeAll\n"
+			))
 	TArray<FRule> AddRuleProcessor(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules);
 	virtual TArray<FRule> AddRuleProcessor_Implementation(UModuleComponent* ModuleComponent, UModuleComponent* PreviousComponent, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules);
 

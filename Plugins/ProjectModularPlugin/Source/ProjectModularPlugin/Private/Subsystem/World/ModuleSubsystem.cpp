@@ -18,6 +18,17 @@ void UModuleSubsystem::OnWorldBeginPlay(UWorld& InWorld)
 	Super::OnWorldBeginPlay(InWorld);
 
 	Reset();
+
+	UE_LOG(LogTemp, Warning, TEXT("Modular Project Plugin Default event invoke names include the following.\n"));
+	UE_LOG(LogTemp, Display, TEXT("----------\n"));
+	UE_LOG(LogTemp, Warning, TEXT("ModuleInitializationBegins_InvokeAll\n"));
+	UE_LOG(LogTemp, Warning, TEXT("DoOnce_PreInitModule_InvokeAll\n"));
+	UE_LOG(LogTemp, Warning, TEXT("DoOnce_PreInitModule\n"));
+	UE_LOG(LogTemp, Warning, TEXT("InitModule\n"));
+	UE_LOG(LogTemp, Warning, TEXT("DoOnce_PostInitModule_InvokeAll\n"));
+	UE_LOG(LogTemp, Warning, TEXT("DoOnce_PostInitModule\n"));
+	UE_LOG(LogTemp, Warning, TEXT("ModuleInitializationCompleted_InvokeAll\n"));
+	UE_LOG(LogTemp, Display, TEXT("----------\n"));
 	
 	if (UWorld* World = GetWorld())
 	{
