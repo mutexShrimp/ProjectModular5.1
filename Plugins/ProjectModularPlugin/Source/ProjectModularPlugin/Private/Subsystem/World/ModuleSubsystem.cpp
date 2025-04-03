@@ -80,7 +80,7 @@ void UModuleSubsystem::BeginDestroy()
 
 void UModuleSubsystem::BindModule_Implementation(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass)
 {
-	UE_LOG(LogTemp, Warning, TEXT("BindModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("BindModule Function is Invoked by \"%s\""), *ModuleClass.GetObject()->GetName());
 
 	UModuleComponentBase* ModuleComponent = Cast<AActor>(ModuleClass.GetObject())->FindComponentByClass<UModuleComponentBase>();
 
@@ -89,7 +89,7 @@ void UModuleSubsystem::BindModule_Implementation(const TScriptInterface<IModuleE
 		FString ModuleName = ModuleClass->Execute_GetModuleName(ModuleClass.GetObject());
 		Modules.Add(ModuleName, ModuleClass);
 
-		UE_LOG(LogTemp, Warning, TEXT("Added %s Module"), *ModuleName);	
+		UE_LOG(LogTemp, Warning, TEXT("Added \"%s\" Module"), *ModuleName);	
 	}
 }
 
@@ -122,7 +122,7 @@ UModuleComponentBase* UModuleSubsystem::GetModuleByName_Implementation(const FSt
 
 void UModuleSubsystem::InvokeModule(const TScriptInterface<IModuleEventCallableInterface>& ModuleClass, const TMap<FString, TScriptInterface<IModuleEventCallableInterface>>& NewModules, bool& isEmpty)
 {
-	UE_LOG(LogTemp, Warning, TEXT("InvokeModule Function is Invoked by %s"), *ModuleClass.GetObject()->GetName());
+	UE_LOG(LogTemp, Warning, TEXT("InvokeModule Function is Invoked by \"%s\""), *ModuleClass.GetObject()->GetName());
 
 	FString ModuleName = ModuleClass->Execute_GetModuleName(ModuleClass.GetObject());
 	TScriptInterface<IModuleEventCallableInterface>* ModuleClassInterface = Modules.Find(ModuleName);

@@ -44,10 +44,10 @@ bool ARuleProcessingClassBase::HandleInvocation(UModuleComponent* ModuleComponen
 	{
 		TArray<FRule> RullRules = SortBothRules(DefaultRules, AddedRules);
 	
-		for (FRule Rule : RullRules)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Rule Processing Function Implemented %s"), *Rule.RuleName);
-		}
+		// for (FRule Rule : RullRules)
+		// {
+		// 	UE_LOG(LogTemp, Warning, TEXT("Rule Processing Function Implemented %s"), *Rule.RuleName);
+		// }
 		
 		// Invoke
 		for (FRule DefaultRule : RullRules)
@@ -122,6 +122,7 @@ TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleC
 void ARuleProcessingClassBase::ResetRules()
 {
 	FinalRules.Empty();
+	FinalRulesTuple.Empty();
 	FinalRuleArr.Empty();
 }
 
@@ -244,7 +245,8 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 			}
 		}
 	}
-	
+
+	// 打印链表最终结构
 	PrintLinkedRules(ELinkedListToward::Forward, LinkedList);
 
 	// 4 : 根据等级精细排序
@@ -261,6 +263,11 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 			TArray<FRule> NewRules;
 			NewRules.Add(Rule);
 			FinalRules.Add(NewRules);
+			
+			int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
+			TArray<TTuple<int32, FRule>> NewRulesTuple;
+			NewRulesTuple.Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
+			FinalRulesTuple.Add(NewRulesTuple);
 		}
 		else
 		{
@@ -271,6 +278,9 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 					if (FinalRules[Index][0].TriggingDependencies == Rule.TriggingDependencies && FinalRules[Index][0].TriggerType == Rule.TriggerType)
 					{
 						FinalRules[Index].Add(Rule);
+						
+						int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
+						FinalRulesTuple[Index].Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
 						bHasTrigger = true;
 					}
 				}
@@ -280,6 +290,11 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 				TArray<FRule> NewRules;
 				NewRules.Add(Rule);
 				FinalRules.Add(NewRules);
+				
+				int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
+				TArray<TTuple<int32, FRule>> NewRulesTuple;
+				NewRulesTuple.Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
+				FinalRulesTuple.Add(NewRulesTuple);
 			}
 		}
 	}
@@ -293,18 +308,126 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 		});
 	}
 
+	for (TArray<TTuple<int32, FRule>>& MyRuleArr : FinalRulesTuple)
+	{
+		MyRuleArr.Sort([](const TTuple<int32, FRule>& A, const TTuple<int32, FRule>& B)
+		{
+			return A.Get<1>().TriggerLevel < B.Get<1>().TriggerLevel;
+		});
+	}
+
 	//PrintArrayRules(FinalRules);
 
-	// 降维存储
-	for (const TArray<FRule>& L_FinalRuleArr : FinalRules)
+	TArray<int32> IgnoreIndexes;
+	int32 NowMaxIndex = -1;
+	// 最终排序
+	for (int32 i = 0; i < FinalRulesTuple.Num(); i++)
 	{
-		for (FRule FinalRule : L_FinalRuleArr)
+		if (!(FinalRulesTuple[i].IsEmpty()))
 		{
-			FinalRuleArr.Add(FinalRule);
+			// 数组内仅一位数据
+			if (FinalRulesTuple[i].Num() == 1)
+			{
+				if (!(IgnoreIndexes.Contains(FinalRulesTuple[i][0].Get<0>())))
+				{
+					FinalRuleArr.Add(FinalRulesTuple[i][0].Get<1>());
+					NowMaxIndex = (FinalRulesTuple[i][0].Get<0>() > NowMaxIndex ? FinalRulesTuple[i][0].Get<0>() : NowMaxIndex);
+				}
+			}
+			else
+			{
+				// 数组内多位数据
+				for (int32 j = 0; j < FinalRulesTuple[i].Num(); j++)
+				{
+					if (!(IgnoreIndexes.Contains(FinalRulesTuple[i][j].Get<0>())))
+					{
+						bool bNextIsValidIndex = FinalRulesTuple.IsValidIndex(i + 1);
+
+						int32 NextIndex = -1;
+						if (bNextIsValidIndex)
+						{
+							NextIndex = FinalRulesTuple[i + 1][0].Get<0>();
+						}
+						
+						// 统计最大索引与最小索引
+						int32 L_NowMaxIndex = -1;
+						int32 L_NowMinIndex = 99999;
+						for (int32 k = 0; k < FinalRulesTuple[i].Num(); k++)
+						{
+							L_NowMaxIndex = (FinalRulesTuple[i][k].Get<0>() > L_NowMaxIndex ? FinalRulesTuple[i][k].Get<0>() : L_NowMaxIndex);
+							L_NowMinIndex = (FinalRulesTuple[i][k].Get<0>() < L_NowMinIndex ? FinalRulesTuple[i][k].Get<0>() : L_NowMinIndex);
+						}
+						
+						if (j == 0)
+						{
+							// 首条数据
+							FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
+							NowMaxIndex = (FinalRulesTuple[i][j].Get<0>() > NowMaxIndex ? FinalRulesTuple[i][j].Get<0>() : NowMaxIndex);
+						}
+						else
+						{
+							if (bNextIsValidIndex)
+							{
+								if (L_NowMinIndex < NextIndex && L_NowMaxIndex < NextIndex)
+								{
+									// 如果最大最小索引都小于下个索引
+									FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
+								}
+								else
+								{
+									// 后续有节点需插入当前数组
+									for (int32 k = i + 1; k < FinalRulesTuple.Num(); k++)
+									{
+										for (int32 l = 0; l < FinalRulesTuple[k].Num(); l++)
+										{
+											if (FinalRulesTuple[k][l].Get<0>() < L_NowMaxIndex)
+											{
+												if (FinalRulesTuple[k][l].Get<0>() == NowMaxIndex + 1)
+												{
+													FinalRuleArr.Add(FinalRulesTuple[k][l].Get<1>());
+													NowMaxIndex = (FinalRulesTuple[k][l].Get<0>() > NowMaxIndex ? FinalRulesTuple[k][l].Get<0>() : NowMaxIndex);
+													IgnoreIndexes.Add(FinalRulesTuple[k][l].Get<0>());
+												}
+											}
+										}
+									}
+									// 添加完成后续的前置节点后加入当前节点
+									FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
+								}	
+							}
+							else
+							{
+								// 如果没有后续节点则直接加入
+								FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());	
+							}
+							
+							
+							// if ((FinalRulesTuple[i][j - 1].Get<0>()  + 1) == FinalRulesTuple[i][j].Get<0>())
+							// {
+							// 	// 连续
+							// 	//FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
+							// }
+							// else
+							// {
+							// 	
+							// }
+						}
+					}
+				}
+			}	
 		}
 	}
 	
-	//PrintRules(FinalRuleArr);
+	// 降维存储
+	// for (const TArray<FRule>& L_FinalRuleArr : FinalRules)
+	// {
+	// 	for (FRule FinalRule : L_FinalRuleArr)
+	// 	{
+	// 		FinalRuleArr.Add(FinalRule);
+	// 	}
+	// }
+	
+	PrintRules(FinalRuleArr);
 
 
 	
@@ -459,22 +582,42 @@ void ARuleProcessingClassBase::PrintArrayRules(TArray<TArray<FRule>> DefaultArra
 
 void ARuleProcessingClassBase::PrintRules(TArray<FRule> DefaultRules)
 {
+	UE_LOG(LogTemp, Display, TEXT("----- Start Array Print -----\n"));
 	for ( FRule Rule : DefaultRules)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Rules : %s"), *Rule.RuleName);
 	}
+	UE_LOG(LogTemp, Display, TEXT("----- End Array Print -----\n"));
 }
 
 void ARuleProcessingClassBase::PrintLinkedRules(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList)
 {
 	LinkedList = LinkedListToHead(LinkedListToward);
+
+	UE_LOG(LogTemp, Display, TEXT("----- Start Linked List Print -----\n"));
 	
 	for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
 	{
 		FRule Rule = *It;
 		UE_LOG(LogTemp, Warning, TEXT("Toward %s, LinkedRules : %s"), LinkedListToward == ELinkedListToward::Forward ? TEXT("Forward") : TEXT("Backward"), *Rule.RuleName);
 	}
-	UE_LOG(LogTemp, Display, TEXT("----------\n"));
+	UE_LOG(LogTemp, Display, TEXT("----- End Linked List Print -----\n"));
+}
+
+int32 ARuleProcessingClassBase::GetLinkedRuleIndex(const FString& RuleName)
+{
+	TLinkedList<FRule>* LinkedList = LinkedListToHead(ELinkedListToward::Forward);
+	int32 Index = 0;
+	for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
+	{
+		FRule Rule = *It;
+		if (Rule.RuleName == RuleName)
+		{
+			return Index;
+		}
+		Index++;
+	}
+	return -1;
 }
 
 TLinkedList<FRule>* ARuleProcessingClassBase::LinkedListToHead(ELinkedListToward LinkedListToward)

@@ -52,12 +52,12 @@ protected:
 	
 	void PrintLinkedRules(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList);
 
+	int32 GetLinkedRuleIndex(const FString& RuleName);
+	
 	TLinkedList<FRule>* LinkedListToHead(ELinkedListToward LinkedListToward);
 
 	TLinkedList<FRule>* GetPrevLink(ELinkedListToward LinkedListToward, TLinkedList<FRule>* LinkedList);
 	TLinkedList<FRule>* GetNewPrevLink(TLinkedList<FRule>* LinkedList, TLinkedList<FRule>* __HeadLinkedList);
-
-	
 	
 private:
 
@@ -66,6 +66,7 @@ private:
 	TLinkedList<FRule>* CacheLinkList;
 
 	TArray<TArray<FRule>> FinalRules;
+	TArray<TArray<TTuple<int32, FRule>>> FinalRulesTuple;
 	TArray<FRule> FinalRuleArr;
 
 protected:
