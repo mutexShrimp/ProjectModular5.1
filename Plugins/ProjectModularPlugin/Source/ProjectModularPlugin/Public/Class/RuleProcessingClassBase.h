@@ -64,8 +64,7 @@ private:
 	TLinkedList<FRule>* HeadLinkedList;
 	TLinkedList<FRule>* HeadLinkedList_Reverse;
 	TLinkedList<FRule>* CacheLinkList;
-
-	TArray<TArray<FRule>> FinalRules;
+	
 	TArray<TArray<TTuple<int32, FRule>>> FinalRulesTuple;
 	TArray<FRule> FinalRuleArr;
 
