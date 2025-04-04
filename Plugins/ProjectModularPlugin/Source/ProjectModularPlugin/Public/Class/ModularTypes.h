@@ -48,6 +48,72 @@ struct FRule
 	
 };
 
+struct FRulesOrderProcessing
+{
+private:
+	FString RuleName;
+	FRule Rule;
+	TArray<FRulesOrderProcessing> PreRules;
+	TArray<FRulesOrderProcessing> PostRules;
+	TArray<FRulesOrderProcessing> ContainsRules;
+
+public:
+	void SetRule(FRule NewRule)
+	{
+		Rule = NewRule;
+		RuleName = NewRule.RuleName;
+	}
+
+	FRule GetRule()
+	{
+		return Rule;
+	}
+
+	FString GetRuleName()
+	{
+		return Rule.RuleName;
+	}
+	
+	void AddPreRule(FRule NewRule)
+	{
+		FRulesOrderProcessing RulesOrderProcessing;
+		RulesOrderProcessing.SetRule(NewRule);
+		PreRules.Add(RulesOrderProcessing);
+		ContainsRules.Add(RulesOrderProcessing);
+	}
+
+	void AddPreRule(FRulesOrderProcessing RulesOrderProcessing)
+	{
+		PreRules.Add(RulesOrderProcessing);
+		ContainsRules.Add(RulesOrderProcessing);
+	}
+
+	TArray<FRulesOrderProcessing> GetPreRules()
+	{
+		return PreRules;
+	}
+	
+	void AddPostRule(FRule NewRule)
+	{
+		FRulesOrderProcessing RulesOrderProcessing;
+		RulesOrderProcessing.SetRule(NewRule);
+		PostRules.Add(RulesOrderProcessing);
+		ContainsRules.Add(RulesOrderProcessing);
+	}
+	
+	void AddPostRule(FRulesOrderProcessing RulesOrderProcessing)
+	{
+		PostRules.Add(RulesOrderProcessing);
+		ContainsRules.Add(RulesOrderProcessing);
+	}
+
+	TArray<FRulesOrderProcessing> GetPostRules()
+	{
+		return PostRules;
+	}
+	
+};
+
 UCLASS()
 class PROJECTMODULARPLUGIN_API UModularTypes : public UObject
 {

@@ -232,142 +232,194 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 	// 4 : 根据等级精细排序
 	LinkedList = LinkedListToHead();
 
-	// 转化为数组
+	// -----
+	TArray<FRulesOrderProcessing> RulesOrderProcessingArr;
 	for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
 	{
 		FRule Rule = *It;
-		bool bHasTrigger = false;
+		FRulesOrderProcessing RulesOrderProcessing;
+		RulesOrderProcessing.SetRule(Rule);
 
-		if (Rule.TriggingDependencies == TEXT(""))
+		for (TLinkedList<FRule>::TIterator L_It(LinkedList); L_It; L_It.Next())
 		{
-			int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
-			TArray<TTuple<int32, FRule>> NewRulesTuple;
-			NewRulesTuple.Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
-			FinalRulesTuple.Add(NewRulesTuple);
-		}
-		else
-		{
-			for (int32 Index = 0; Index < FinalRulesTuple.Num(); Index++)
+			FRule L_Rule = *L_It;
+
+			if (L_Rule.RuleName != Rule.RuleName)
 			{
-				if (FinalRulesTuple[Index].Num() > 0)
+				if (L_Rule.TriggingDependencies == Rule.RuleName)
 				{
-					if (FinalRulesTuple[Index][0].Get<1>().TriggingDependencies == Rule.TriggingDependencies && FinalRulesTuple[Index][0].Get<1>().TriggerType == Rule.TriggerType)
-					{
-						int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
-						FinalRulesTuple[Index].Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
-						bHasTrigger = true;
+					switch (L_Rule.TriggerType) {
+						case ERuleTriggerType::Pre:
+							RulesOrderProcessing.AddPreRule(L_Rule);
+							break;
+						case ERuleTriggerType::Post:
+							RulesOrderProcessing.AddPostRule(L_Rule);
+							break;
+						default: ;
 					}
 				}
 			}
-			if (!bHasTrigger)
-			{
-				int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
-				TArray<TTuple<int32, FRule>> NewRulesTuple;
-				NewRulesTuple.Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
-				FinalRulesTuple.Add(NewRulesTuple);
-			}
 		}
+		
+		RulesOrderProcessingArr.Add(RulesOrderProcessing);
 	}
 
-	for (TArray<TTuple<int32, FRule>>& MyRuleArr : FinalRulesTuple)
-	{
-		MyRuleArr.Sort([](const TTuple<int32, FRule>& A, const TTuple<int32, FRule>& B)
-		{
-			return A.Get<1>().TriggerLevel < B.Get<1>().TriggerLevel;
-		});
-	}
+	UE_LOG(LogTemp, Warning, TEXT("Num : %d"), RulesOrderProcessingArr.Num());
 
 	TArray<int32> IgnoreIndexes;
-	int32 NowMaxIndex = -1;
-	// 最终排序
-	for (int32 i = 0; i < FinalRulesTuple.Num(); i++)
+
+	// 遍历最外层
+	for (FRulesOrderProcessing OrderProcessing : RulesOrderProcessingArr)
 	{
-		if (!(FinalRulesTuple[i].IsEmpty()))
+		if (!(IgnoreIndexes.Contains(GetLinkedRuleIndex(OrderProcessing.GetRule().RuleName))))
 		{
-			// 数组内仅一位数据
-			if (FinalRulesTuple[i].Num() == 1)
-			{
-				if (!(IgnoreIndexes.Contains(FinalRulesTuple[i][0].Get<0>())))
-				{
-					FinalRuleArr.Add(FinalRulesTuple[i][0].Get<1>());
-					NowMaxIndex = (FinalRulesTuple[i][0].Get<0>() > NowMaxIndex ? FinalRulesTuple[i][0].Get<0>() : NowMaxIndex);
-				}
-			}
-			else
-			{
-				// 数组内多位数据
-				for (int32 j = 0; j < FinalRulesTuple[i].Num(); j++)
-				{
-					if (!(IgnoreIndexes.Contains(FinalRulesTuple[i][j].Get<0>())))
-					{
-						bool bNextIsValidIndex = FinalRulesTuple.IsValidIndex(i + 1);
-
-						int32 NextIndex = -1;
-						if (bNextIsValidIndex)
-						{
-							NextIndex = FinalRulesTuple[i + 1][0].Get<0>();
-						}
-						
-						// 统计最大索引与最小索引
-						int32 L_NowMaxIndex = -1;
-						int32 L_NowMinIndex = 99999;
-						for (int32 k = 0; k < FinalRulesTuple[i].Num(); k++)
-						{
-							L_NowMaxIndex = (FinalRulesTuple[i][k].Get<0>() > L_NowMaxIndex ? FinalRulesTuple[i][k].Get<0>() : L_NowMaxIndex);
-							L_NowMinIndex = (FinalRulesTuple[i][k].Get<0>() < L_NowMinIndex ? FinalRulesTuple[i][k].Get<0>() : L_NowMinIndex);
-						}
-						
-						if (j == 0)
-						{
-							// 首条数据
-							FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
-							NowMaxIndex = (FinalRulesTuple[i][j].Get<0>() > NowMaxIndex ? FinalRulesTuple[i][j].Get<0>() : NowMaxIndex);
-						}
-						else
-						{
-							if (bNextIsValidIndex)
-							{
-								if (L_NowMinIndex < NextIndex && L_NowMaxIndex < NextIndex)
-								{
-									// 如果最大最小索引都小于下个索引
-									FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
-								}
-								else
-								{
-									// 后续有节点需插入当前数组
-									for (int32 k = i + 1; k < FinalRulesTuple.Num(); k++)
-									{
-										for (int32 l = 0; l < FinalRulesTuple[k].Num(); l++)
-										{
-											if (FinalRulesTuple[k][l].Get<0>() < L_NowMaxIndex)
-											{
-												if (FinalRulesTuple[k][l].Get<0>() == NowMaxIndex + 1)
-												{
-													FinalRuleArr.Add(FinalRulesTuple[k][l].Get<1>());
-													NowMaxIndex = (FinalRulesTuple[k][l].Get<0>() > NowMaxIndex ? FinalRulesTuple[k][l].Get<0>() : NowMaxIndex);
-													IgnoreIndexes.Add(FinalRulesTuple[k][l].Get<0>());
-												}
-											}
-										}
-									}
-									// 添加完成后续的前置节点后加入当前节点
-									FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
-								}	
-							}
-							else
-							{
-								// 如果没有后续节点则直接加入
-								FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());	
-							}
-						}
-					}
-				}
-			}	
+			//FinalRuleArr.Add(OrderProcessingArr.GetRule());
+			// 遍历内层
+			
+			
 		}
+		
 	}
-
-	// 打印数组最终结构
-	PrintRules(FinalRuleArr);
+	
+	
+	// -----
+	
+	// 转化为数组
+	// for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
+	// {
+	// 	FRule Rule = *It;
+	// 	bool bHasTrigger = false;
+	//
+	// 	if (Rule.TriggingDependencies == TEXT(""))
+	// 	{
+	// 		int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
+	// 		TArray<TTuple<int32, FRule>> NewRulesTuple;
+	// 		NewRulesTuple.Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
+	// 		FinalRulesTuple.Add(NewRulesTuple);
+	// 	}
+	// 	else
+	// 	{
+	// 		for (int32 Index = 0; Index < FinalRulesTuple.Num(); Index++)
+	// 		{
+	// 			if (FinalRulesTuple[Index].Num() > 0)
+	// 			{
+	// 				if (FinalRulesTuple[Index][0].Get<1>().TriggingDependencies == Rule.TriggingDependencies && FinalRulesTuple[Index][0].Get<1>().TriggerType == Rule.TriggerType)
+	// 				{
+	// 					int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
+	// 					FinalRulesTuple[Index].Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
+	// 					bHasTrigger = true;
+	// 				}
+	// 			}
+	// 		}
+	// 		if (!bHasTrigger)
+	// 		{
+	// 			int32 LinkedRuleIndex = GetLinkedRuleIndex(Rule.RuleName);
+	// 			TArray<TTuple<int32, FRule>> NewRulesTuple;
+	// 			NewRulesTuple.Add(TTuple<int32, FRule>(LinkedRuleIndex, Rule));
+	// 			FinalRulesTuple.Add(NewRulesTuple);
+	// 		}
+	// 	}
+	// }
+	//
+	// for (TArray<TTuple<int32, FRule>>& MyRuleArr : FinalRulesTuple)
+	// {
+	// 	MyRuleArr.Sort([](const TTuple<int32, FRule>& A, const TTuple<int32, FRule>& B)
+	// 	{
+	// 		return A.Get<1>().TriggerLevel < B.Get<1>().TriggerLevel;
+	// 	});
+	// }
+	//
+	// TArray<int32> IgnoreIndexes;
+	// int32 NowMaxIndex = -1;
+	// // 最终排序
+	// for (int32 i = 0; i < FinalRulesTuple.Num(); i++)
+	// {
+	// 	if (!(FinalRulesTuple[i].IsEmpty()))
+	// 	{
+	// 		// 数组内仅一位数据
+	// 		if (FinalRulesTuple[i].Num() == 1)
+	// 		{
+	// 			if (!(IgnoreIndexes.Contains(FinalRulesTuple[i][0].Get<0>())))
+	// 			{
+	// 				FinalRuleArr.Add(FinalRulesTuple[i][0].Get<1>());
+	// 				NowMaxIndex = (FinalRulesTuple[i][0].Get<0>() > NowMaxIndex ? FinalRulesTuple[i][0].Get<0>() : NowMaxIndex);
+	// 			}
+	// 		}
+	// 		else
+	// 		{
+	// 			// 数组内多位数据
+	// 			for (int32 j = 0; j < FinalRulesTuple[i].Num(); j++)
+	// 			{
+	// 				if (!(IgnoreIndexes.Contains(FinalRulesTuple[i][j].Get<0>())))
+	// 				{
+	// 					bool bNextIsValidIndex = FinalRulesTuple.IsValidIndex(i + 1);
+	//
+	// 					int32 NextIndex = -1;
+	// 					if (bNextIsValidIndex)
+	// 					{
+	// 						NextIndex = FinalRulesTuple[i + 1][0].Get<0>();
+	// 					}
+	// 					
+	// 					// 统计最大索引与最小索引
+	// 					int32 L_NowMaxIndex = -1;
+	// 					int32 L_NowMinIndex = 99999;
+	// 					for (int32 k = 0; k < FinalRulesTuple[i].Num(); k++)
+	// 					{
+	// 						L_NowMaxIndex = (FinalRulesTuple[i][k].Get<0>() > L_NowMaxIndex ? FinalRulesTuple[i][k].Get<0>() : L_NowMaxIndex);
+	// 						L_NowMinIndex = (FinalRulesTuple[i][k].Get<0>() < L_NowMinIndex ? FinalRulesTuple[i][k].Get<0>() : L_NowMinIndex);
+	// 					}
+	// 					
+	// 					if (j == 0)
+	// 					{
+	// 						// 首条数据
+	// 						FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
+	// 						NowMaxIndex = (FinalRulesTuple[i][j].Get<0>() > NowMaxIndex ? FinalRulesTuple[i][j].Get<0>() : NowMaxIndex);
+	// 					}
+	// 					else
+	// 					{
+	// 						if (bNextIsValidIndex)
+	// 						{
+	// 							if (L_NowMinIndex < NextIndex && L_NowMaxIndex < NextIndex)
+	// 							{
+	// 								// 如果最大最小索引都小于下个索引
+	// 								FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
+	// 							}
+	// 							else
+	// 							{
+	// 								// 后续有节点需插入当前数组
+	// 								for (int32 k = i + 1; k < FinalRulesTuple.Num(); k++)
+	// 								{
+	// 									for (int32 l = 0; l < FinalRulesTuple[k].Num(); l++)
+	// 									{
+	// 										if (FinalRulesTuple[k][l].Get<0>() < L_NowMaxIndex)
+	// 										{
+	// 											if (FinalRulesTuple[k][l].Get<0>() == NowMaxIndex + 1)
+	// 											{
+	// 												FinalRuleArr.Add(FinalRulesTuple[k][l].Get<1>());
+	// 												NowMaxIndex = (FinalRulesTuple[k][l].Get<0>() > NowMaxIndex ? FinalRulesTuple[k][l].Get<0>() : NowMaxIndex);
+	// 												IgnoreIndexes.Add(FinalRulesTuple[k][l].Get<0>());
+	// 											}
+	// 										}
+	// 									}
+	// 								}
+	// 								// 添加完成后续的前置节点后加入当前节点
+	// 								FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());
+	// 							}	
+	// 						}
+	// 						else
+	// 						{
+	// 							// 如果没有后续节点则直接加入
+	// 							FinalRuleArr.Add(FinalRulesTuple[i][j].Get<1>());	
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}	
+	// 	}
+	// }
+	//
+	// // 打印数组最终结构
+	// PrintRules(FinalRuleArr);
 	
 	return FinalRuleArr;
 }
@@ -451,28 +503,68 @@ TLinkedList<FRule>* ARuleProcessingClassBase::GetPrevLink(TLinkedList<FRule>* Li
 	return nullptr;
 }
 
-TLinkedList<FRule>* ARuleProcessingClassBase::GetNewPrevLink(TLinkedList<FRule>* LinkedList,
-	TLinkedList<FRule>* __HeadLinkedList)
+int32 ARuleProcessingClassBase::GetIndexByRuleName(FRulesOrderProcessing RulesOrderProcessing, TArray<FRulesOrderProcessing> RulesOrderProcessingArr,
+	TArray<int32> IgnoreIndexes)
 {
-	TLinkedList<FRule>* __LinkedList = __HeadLinkedList;
-			
-	for (TLinkedList<FRule>::TIterator It(__HeadLinkedList); It; It.Next())
+	int32 Index = 0;
+	for (FRulesOrderProcessing L_RulesOrderProcessing : RulesOrderProcessingArr)
 	{
-		FRule Rule = *It;
-
-		if (__LinkedList->GetNextLink() != nullptr)
+		if (L_RulesOrderProcessing.GetRuleName() == RulesOrderProcessing.GetRuleName())
 		{
-			if ((*__LinkedList->GetNextLink())->RuleName == (*LinkedList)->RuleName)
+			if (IgnoreIndexes.Contains(Index))
 			{
-				return __LinkedList;
+				return -1;
 			}
-					
-			__LinkedList = __LinkedList->GetNextLink();	
+			return Index;
+		}
+		Index++;
+	}
+	return -1;
+}
+
+FRulesOrderProcessing ARuleProcessingClassBase::GetRuleByIndex(int32 Index, TArray<FRulesOrderProcessing> RulesOrderProcessingArr)
+{
+	int32 L_Index = 0;
+	for (FRulesOrderProcessing L_RulesOrderProcessing : RulesOrderProcessingArr)
+	{
+		if (Index == L_Index)
+		{
+			return L_RulesOrderProcessing;
+		}
+		L_Index++;
+	}
+	return FRulesOrderProcessing();
+}
+
+TArray<FRule> ARuleProcessingClassBase::PreorderTraversalRules(FRulesOrderProcessing RulesOrderProcessing,
+                                                     TArray<FRulesOrderProcessing> RulesOrderProcessingArr, TArray<int32>& IgnoreIndexes)
+{
+	TArray<FRule> Rules;
+	// 前向遍历
+	for (FRulesOrderProcessing PreRule : RulesOrderProcessing.GetPreRules())
+	{
+		int32 IndexByRuleName = GetIndexByRuleName(PreRule, RulesOrderProcessingArr, IgnoreIndexes);
+		if (IndexByRuleName == -1)
+		{
+			// 无需继续寻找遍历 进行后续迭代
+			break;
 		}
 		else
 		{
-			return nullptr;
+			// 需要继续寻找遍历
+			// 获取前序对象，进入对象继续遍历，当前前序对象加入返回节点，加入忽视索引
+			FRulesOrderProcessing L_RulesOrderProcessing = GetRuleByIndex(IndexByRuleName, RulesOrderProcessingArr);
+			TArray<FRule> TraversalRules = PreorderTraversalRules(L_RulesOrderProcessing, RulesOrderProcessingArr, IgnoreIndexes);
+			Rules.Append(TraversalRules);
+			Rules.Add(L_RulesOrderProcessing.GetRule());
+			IgnoreIndexes.Add(IndexByRuleName);
 		}
 	}
-	return nullptr;
+
+	// 中序遍历
+
+	// 后续遍历
+
+	
 }
+

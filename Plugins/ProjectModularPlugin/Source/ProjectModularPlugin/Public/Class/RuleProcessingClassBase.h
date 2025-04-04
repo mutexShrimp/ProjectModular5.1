@@ -63,7 +63,12 @@ protected:
 	TLinkedList<FRule>* LinkedListToHead();
 
 	TLinkedList<FRule>* GetPrevLink(TLinkedList<FRule>* LinkedList);
-	TLinkedList<FRule>* GetNewPrevLink(TLinkedList<FRule>* LinkedList, TLinkedList<FRule>* __HeadLinkedList);
+
+	int32 GetIndexByRuleName(FRulesOrderProcessing RulesOrderProcessing, TArray<FRulesOrderProcessing> RulesOrderProcessingArr, TArray<int32> IgnoreIndexes);
+
+	FRulesOrderProcessing GetRuleByIndex(int32 Index, TArray<FRulesOrderProcessing> RulesOrderProcessingArr);
+
+	TArray<FRule> PreorderTraversalRules(FRulesOrderProcessing RulesOrderProcessing, TArray<FRulesOrderProcessing> RulesOrderProcessingArr, TArray<int32>& IgnoreIndexes);
 	
 private:
 
