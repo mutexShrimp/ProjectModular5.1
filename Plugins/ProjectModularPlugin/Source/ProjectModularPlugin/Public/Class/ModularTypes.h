@@ -64,7 +64,7 @@ public:
 		RuleName = NewRule.RuleName;
 	}
 
-	FRule GetRule()
+	const FRule& GetRule() const
 	{
 		return Rule;
 	}
@@ -88,7 +88,7 @@ public:
 		ContainsRules.Add(RulesOrderProcessing);
 	}
 
-	TArray<FRulesOrderProcessing> GetPreRules()
+	TArray<FRulesOrderProcessing>& GetPreRules() 
 	{
 		return PreRules;
 	}
@@ -107,7 +107,7 @@ public:
 		ContainsRules.Add(RulesOrderProcessing);
 	}
 
-	TArray<FRulesOrderProcessing> GetPostRules()
+	TArray<FRulesOrderProcessing>& GetPostRules() 
 	{
 		return PostRules;
 	}

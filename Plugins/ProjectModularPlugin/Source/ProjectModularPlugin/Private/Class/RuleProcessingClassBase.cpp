@@ -110,6 +110,7 @@ TArray<FRule> ARuleProcessingClassBase::AddRuleProcessor_Implementation(UModuleC
 
 void ARuleProcessingClassBase::ResetRules()
 {
+	HeadLinkedList = nullptr;
 	FinalRulesTuple.Empty();
 	FinalRuleArr.Empty();
 }
@@ -232,7 +233,7 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 	// 4 : 根据等级精细排序
 	LinkedList = LinkedListToHead();
 
-	// -----
+	// ----- 加入递归结构中
 	TArray<FRulesOrderProcessing> RulesOrderProcessingArr;
 	for (TLinkedList<FRule>::TIterator It(LinkedList); It; It.Next())
 	{
@@ -264,22 +265,43 @@ TArray<FRule> ARuleProcessingClassBase::SortRules(TArray<FRule> DefaultRules)
 		RulesOrderProcessingArr.Add(RulesOrderProcessing);
 	}
 
+	// 遍历排序
+	for (FRulesOrderProcessing& OrderProcessing : RulesOrderProcessingArr)
+	{
+		if (OrderProcessing.GetPreRules().Num() > 1)
+		{
+			OrderProcessing.GetPreRules().Sort([](const FRulesOrderProcessing& A, const FRulesOrderProcessing& B)
+			{
+				return A.GetRule().TriggerLevel < B.GetRule().TriggerLevel;
+			});	
+		}
+
+		if (OrderProcessing.GetPostRules().Num() > 1)
+		{
+			OrderProcessing.GetPostRules().Sort([](const FRulesOrderProcessing& A, const FRulesOrderProcessing& B)
+			{
+				return A.GetRule().TriggerLevel < B.GetRule().TriggerLevel;
+			});	
+		}
+	}
+	
+	// 遍历获取
 	UE_LOG(LogTemp, Warning, TEXT("Num : %d"), RulesOrderProcessingArr.Num());
 
 	TArray<int32> IgnoreIndexes;
-
-	// 遍历最外层
+	
 	for (FRulesOrderProcessing OrderProcessing : RulesOrderProcessingArr)
 	{
 		if (!(IgnoreIndexes.Contains(GetLinkedRuleIndex(OrderProcessing.GetRule().RuleName))))
 		{
-			//FinalRuleArr.Add(OrderProcessingArr.GetRule());
-			// 遍历内层
-			
-			
+			if (OrderProcessing.GetPreRules().Num() > 0 || OrderProcessing.GetPostRules().Num() > 0 || OrderProcessing.GetRule().TriggingDependencies == TEXT(""))
+			{
+				FinalRuleArr.Append(PreorderTraversalRules(OrderProcessing, RulesOrderProcessingArr, IgnoreIndexes));
+			}
 		}
-		
 	}
+	
+	PrintRules(FinalRuleArr);
 	
 	
 	// -----
@@ -553,18 +575,48 @@ TArray<FRule> ARuleProcessingClassBase::PreorderTraversalRules(FRulesOrderProces
 		{
 			// 需要继续寻找遍历
 			// 获取前序对象，进入对象继续遍历，当前前序对象加入返回节点，加入忽视索引
+			//IgnoreIndexes.Add(IndexByRuleName);
 			FRulesOrderProcessing L_RulesOrderProcessing = GetRuleByIndex(IndexByRuleName, RulesOrderProcessingArr);
 			TArray<FRule> TraversalRules = PreorderTraversalRules(L_RulesOrderProcessing, RulesOrderProcessingArr, IgnoreIndexes);
 			Rules.Append(TraversalRules);
-			Rules.Add(L_RulesOrderProcessing.GetRule());
-			IgnoreIndexes.Add(IndexByRuleName);
+			IgnoreIndexes.AddUnique(IndexByRuleName);
+			int32 L_IndexByRuleName = GetIndexByRuleName(L_RulesOrderProcessing, RulesOrderProcessingArr, IgnoreIndexes);
+			if (L_IndexByRuleName != -1)
+			{
+				Rules.Add(L_RulesOrderProcessing.GetRule());	
+			}
 		}
 	}
 
 	// 中序遍历
-
-	// 后续遍历
-
+	int32 IndexByRuleName = GetIndexByRuleName(RulesOrderProcessing, RulesOrderProcessingArr, IgnoreIndexes);
+	if (IndexByRuleName != -1)
+	{
+		Rules.Add(RulesOrderProcessing.GetRule());
+		IgnoreIndexes.AddUnique(IndexByRuleName);
+	}
 	
+	// 后续遍历
+	for (FRulesOrderProcessing PostRule : RulesOrderProcessing.GetPostRules())
+	{
+		int32 L_IndexByRuleName = GetIndexByRuleName(PostRule, RulesOrderProcessingArr, IgnoreIndexes);
+		if (L_IndexByRuleName == -1)
+		{
+			// 无需继续寻找遍历 进行后续迭代
+			break;
+		}
+		else
+		{
+			// 需要继续寻找遍历
+			// 获取前序对象，进入对象继续遍历，当前前序对象加入返回节点，加入忽视索引
+			FRulesOrderProcessing L_RulesOrderProcessing = GetRuleByIndex(L_IndexByRuleName, RulesOrderProcessingArr);
+			TArray<FRule> TraversalRules = PreorderTraversalRules(L_RulesOrderProcessing, RulesOrderProcessingArr, IgnoreIndexes);
+			// Rules.Add(L_RulesOrderProcessing.GetRule());
+			Rules.Append(TraversalRules);
+			// IgnoreIndexes.Add(L_IndexByRuleName);
+		}
+	}
+	
+	return Rules;
 }
 
