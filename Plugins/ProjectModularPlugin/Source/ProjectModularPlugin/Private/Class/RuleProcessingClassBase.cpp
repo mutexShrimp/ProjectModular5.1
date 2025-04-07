@@ -24,6 +24,14 @@ void ARuleProcessingClassBase::BeginPlay()
 	
 }
 
+void ARuleProcessingClassBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	InvokeProcessingObjects.Empty();
+	GEngine->ForceGarbageCollection(true);
+}
+
 // Called every frame
 void ARuleProcessingClassBase::Tick(float DeltaTime)
 {
